@@ -4,7 +4,7 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    region: "서울",
+    city: "서울",
     category: "호텔",
     rating: 5,
     rooms: 100,
