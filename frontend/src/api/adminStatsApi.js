@@ -1,13 +1,11 @@
 import axiosClient from "./axiosClient";
-import { mockStatsApi } from "./mockApi";
-
-const USE_MOCK = false;
 
 export const adminStatsApi = {
+  // 대시보드 통계 (관리자/사업자 공용 혹은 라우트 내부 분기)
   getDashboardStats: () => {
-    if (USE_MOCK) return mockStatsApi.getDashboardStats();
-    return axiosClient.get("/dashboard/admin");
+    return axiosClient.get("/dashboard");
   },
+  // 추가 통계 API가 있다면 여기에 작성
 };
 
 export default adminStatsApi;
