@@ -1,28 +1,48 @@
+// room/model.js
 import mongoose from "mongoose";
+import { businessConnection } from "../config/db.js";
 
-const roomSchema = new mongoose.Schema(
+
+const { Schema } = mongoose;
+
+const roomSchema = new Schema(
   {
-    hotel: { type: mongoose.Schema.Types.ObjectId, ref: "Hotel", required: true },
-    name: { type: String, required: true },
-    type: { type: String, required: true },
-    price: { type: Number, required: true },
-    capacity: { type: Number, required: true },
-    inventory: { type: Number, required: true },
-    images: [{ type: String }],
-    amenities: [{ type: String }],
-    status: { type: String, enum: ["active", "inactive"], default: "active" },
+    hotel: {
+      type: Schema.Types.ObjectId,
+      ref: "Hotel",
+      required: true,
+    },
+    name: { type: String, required: true, trim: true },
+    type: { type: String, required: true, trim: true }, // 예: standard, deluxe 등
+    price: { type: Number, required: true, min: 0 },
+    capacity: { type: Number, required: true, min: 1 },
+    inventory: { type: Number, required: true, min: 0 },
+    images: [{ type: String, trim: true }],
+    amenities: [{ type: String, trim: true }],
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 );
+
+roomSchema.index({ hotel: 1, status: 1 });
 
 roomSchema.set("toJSON", {
   virtuals: true,
   transform: (_doc, ret) => {
     ret.id = ret._id;
+    ret.roomId = ret._id;
     delete ret._id;
     delete ret.__v;
   },
 });
 
-export const Room = mongoose.model("Room", roomSchema);
+export const Room = businessConnection.model("Room", roomSchema);
 export default Room;

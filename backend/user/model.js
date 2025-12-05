@@ -1,28 +1,37 @@
+// ⬇⬇ user/model.js 전체 교체 ⬇⬇
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import { businessConnection } from "../config/db.js";
 
+// 사업자/관리자용 User (owner_db)
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String }, // 소셜 로그인 시 password 없을 수 있음
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: { type: String, required: true },
     role: {
       type: String,
       enum: ["user", "owner", "admin"],
-      default: "user",
+      default: "owner",
     },
-    phone: { type: String },
-    businessNumber: { type: String }, // 사업자 번호
-    provider: { type: String, default: "local" }, // local, kakao, naver, google
-    snsId: { type: String },
-    isBlocked: { type: Boolean, default: false },
+    // 필요하면 여기에 추가 필드들...
   },
   { timestamps: true }
 );
 
-// 비밀번호 해시
+// 🔐 저장 전에 비밀번호 해시
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password") || !this.password) return next();
+  // password 필드가 변경되지 않았으면 그냥 패스
+  if (!this.isModified("password")) {
+    return next();
+  }
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -32,12 +41,12 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// 비밀번호 검증
+// 🔐 로그인 시 비밀번호 비교 메서드
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  if (!this.password) return false;
   return bcrypt.compare(enteredPassword, this.password);
 };
 
+// 응답에서 비밀번호 제거 + id 변환
 userSchema.set("toJSON", {
   virtuals: true,
   transform: (_doc, ret) => {
@@ -48,5 +57,7 @@ userSchema.set("toJSON", {
   },
 });
 
-export const User = mongoose.model("User", userSchema);
+// ✅ owner_db(businessConnection)에 User 저장
+export const User = businessConnection.model("User", userSchema);
 export default User;
+// ⬆⬆ user/model.js 교체 끝 ⬆⬆

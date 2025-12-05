@@ -6,9 +6,6 @@ import roomRoute from "../room/route.js";
 import couponRoute from "../coupon/route.js";
 import dashboardRoute from "../dashboard/route.js";
 import reviewRoute from "../review/route.js";
-import userRoute from "../user/route.js";
-import favoriteRoute from "../favorite/route.js";
-import paymentRoute from "../payment/route.js";
 
 const registerRoutes = (app) => {
   app.use("/api/auth", authRoute);
@@ -18,9 +15,6 @@ const registerRoutes = (app) => {
   app.use("/api/coupons", couponRoute);
   app.use("/api/dashboard", dashboardRoute);
   app.use("/api/reviews", reviewRoute);
-  app.use("/api/user", userRoute);
-  app.use("/api/favorite", favoriteRoute);
-  app.use("/api/payment", paymentRoute);
 };
 
 export default registerRoutes;
