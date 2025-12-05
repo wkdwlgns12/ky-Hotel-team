@@ -21,15 +21,14 @@ const AdminLoginPage = () => {
 
     try {
       const user = await login(formData);
-      // 역할에 따라 페이지 이동 분기
-      if (user.role === 'admin') {
+      if (user.role === "admin") {
         navigate("/admin/dashboard");
       } else {
         navigate("/business/dashboard");
       }
     } catch (err) {
       console.error(err);
-      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+      setError(err.response?.data?.message || "이메일 또는 비밀번호를 확인해주세요.");
     } finally {
       setLoading(false);
     }
@@ -38,11 +37,11 @@ const AdminLoginPage = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h2>통합 로그인</h2>
-        <p style={{color:'#666', marginBottom:'20px', textAlign:'center'}}>관리자 및 파트너(사업자)</p>
+        <h2 style={{textAlign:'center', marginBottom:'10px'}}>통합 로그인</h2>
+        <p style={{textAlign:'center', color:'#666', marginBottom:'2rem'}}>관리자 및 파트너(사업자)</p>
         
         <form onSubmit={handleSubmit}>
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message" style={{color:'red', marginBottom:'10px', textAlign:'center'}}>{error}</div>}
 
           <div className="form-group">
             <label>이메일</label>
@@ -52,6 +51,7 @@ const AdminLoginPage = () => {
               value={formData.email}
               onChange={handleChange}
               required
+              placeholder="example@hotel.com"
             />
           </div>
 
@@ -66,14 +66,14 @@ const AdminLoginPage = () => {
             />
           </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{width:'100%', padding:'10px', marginTop:'10px'}}>
             {loading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
-        <div style={{marginTop:'20px', textAlign:'center', borderTop:'1px solid #eee', paddingTop:'20px'}}>
-          <p style={{marginBottom:'10px'}}>파트너로 입점하고 싶으신가요?</p>
-          <Link to="/business/signup" className="btn btn-outline" style={{display:'inline-block', width:'100%', textAlign:'center'}}>
+        <div style={{marginTop:'30px', paddingTop:'20px', borderTop:'1px solid #eee', textAlign:'center'}}>
+          <p style={{marginBottom:'10px', color:'#555'}}>아직 파트너 계정이 없으신가요?</p>
+          <Link to="/business/signup" className="btn btn-outline" style={{display:'inline-block', width:'100%', textDecoration:'none', padding:'10px', boxSizing:'border-box'}}>
             파트너 입점 신청하기
           </Link>
         </div>

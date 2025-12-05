@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { adminAuthApi } from "../api/adminAuthApi";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const AdminAuthContext = createContext();
 
@@ -8,9 +8,8 @@ export const AdminAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // 초기 로딩 시 토큰 체크
+  // 앱 시작 시 토큰 검증
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem("token");
@@ -20,11 +19,10 @@ export const AdminAuthProvider = ({ children }) => {
       }
 
       try {
-        // 백엔드에 내 정보 요청
         const userData = await adminAuthApi.getMyInfo();
-        setUser(userData.user || userData); // 구조에 따라 처리
+        setUser(userData.user || userData);
       } catch (error) {
-        console.error("Auth check failed:", error);
+        console.error("Token verification failed:", error);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
@@ -36,11 +34,10 @@ export const AdminAuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  // 로그인 함수
   const login = async (credentials) => {
     try {
       const data = await adminAuthApi.login(credentials);
-      // 백엔드 응답: { user, token }
+      // 백엔드 응답: { token: "...", user: { ... } }
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       setUser(data.user);
@@ -50,12 +47,11 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  // 로그아웃 함수
   const logout = async () => {
     try {
       await adminAuthApi.logout();
     } catch (e) {
-      // API 실패해도 클라이언트 로그아웃은 진행
+      console.log("Logout API call failed, local logout only");
     } finally {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -64,12 +60,8 @@ export const AdminAuthProvider = ({ children }) => {
     }
   };
 
-  // 내 정보 수정 함수 (context 업데이트용)
-  const updateMyInfo = async (updateData) => {
-    // 실제 API 호출은 컴포넌트에서 하고, 여기선 상태만 갱신하거나 
-    // 필요하면 여기서 API 호출까지 통합 가능.
-    // 여기서는 상태 갱신만 처리
-    setUser(prev => ({ ...prev, ...updateData }));
+  const updateMyInfo = (newData) => {
+    setUser((prev) => ({ ...prev, ...newData }));
   };
 
   return (

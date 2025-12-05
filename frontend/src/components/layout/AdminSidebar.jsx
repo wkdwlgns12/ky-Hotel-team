@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 const AdminSidebar = () => {
   const menus = [
     { name: "대시보드", path: "/admin/dashboard", icon: "📊" },
-    { name: "호텔 관리 (승인)", path: "/admin/hotels", icon: "🏨" },
+    { name: "호텔 관리", path: "/admin/hotels", icon: "🏨" },
     { name: "회원 관리", path: "/admin/users", icon: "👥" },
     { name: "리뷰 관리", path: "/admin/reviews", icon: "⭐" },
     { name: "쿠폰 관리", path: "/admin/coupons", icon: "🎫" },

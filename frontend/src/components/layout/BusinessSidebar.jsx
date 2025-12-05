@@ -7,11 +7,12 @@ const BusinessSidebar = () => {
     { name: "예약 현황", path: "/business/bookings", icon: "📅" },
     { name: "리뷰 관리", path: "/business/reviews", icon: "⭐" },
     { name: "쿠폰 관리", path: "/business/coupons", icon: "🎫" },
+    { name: "설정", path: "/business/settings", icon: "⚙️" },
     { name: "내 정보", path: "/business/profile", icon: "👤" },
   ];
 
   return (
-    <aside className="sidebar business">
+    <aside className="sidebar business-theme">
       <div className="sidebar-header">
         <h3>Partner Center</h3>
       </div>
