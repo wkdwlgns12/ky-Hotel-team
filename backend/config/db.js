@@ -1,51 +1,35 @@
-// ⬇⬇ config/db.js 전체 복붙 버전 ⬇⬇
-import "dotenv/config"; // ✅ .env를 여기서 바로 로드
+// config/db.js
+import dotenv from "dotenv";
+dotenv.config(); // 이 파일에서 .env를 바로 로드
 
 import mongoose from "mongoose";
 
+// .env 에서 MongoDB URI와 DB 이름을 가져옴
+// .env 안에 MONGODB_URI 또는 MONGO_URI 가 반드시 있어야 함
 const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+const dbName = process.env.MONGO_DB_NAME || "hotel-project";
 
 if (!uri) {
-  console.error("MongoDB URI(.env MONGO_URI 또는 MONGODB_URI)가 없습니다.");
+  // 어떤 값이 들어있는지 로그로 한 번 찍어주면 디버깅에 도움됨
+  console.error("MONGO_URI  :", process.env.MONGO_URI);
+  console.error("MONGODB_URI:", process.env.MONGODB_URI);
+  console.error("MongoDB URI (MONGO_URI or MONGODB_URI) is missing.");
   process.exit(1);
 }
 
-const buildConnection = (dbName, label) => {
-  if (!dbName) {
-    console.error(
-      `${label} DB 이름이 없습니다. (.env에 MONGO_DB_${label.toUpperCase()} 설정)`
-    );
-    process.exit(1);
-  }
-  return mongoose.createConnection(uri, {
-    dbName,
-    serverSelectionTimeoutMS: 5000,
-  });
-};
+// 모든 모델에서 함께 쓰는 공용 Connection
+export const dbConnection = mongoose.createConnection(uri, {
+  serverSelectionTimeoutMS: 5000,
+  dbName,
+});
 
-export const userConnection = buildConnection(process.env.MONGO_DB_USER, "user");
-
-export const businessConnection = buildConnection(
-  process.env.MONGO_DB_BUSINESS || process.env.MONGO_DB_OWNER,
-  "business"
-);
-
-export const serviceConnection = buildConnection(
-  process.env.MONGO_DB_SERVICE,
-  "service"
-);
-
+// 앱 시작 시 한 번만 호출해서 연결 확인
 export const connectDB = async () => {
   try {
-    await Promise.all([
-      userConnection.asPromise(),
-      businessConnection.asPromise(),
-      serviceConnection.asPromise(),
-    ]);
-    console.log("MongoDB connections ready (user/business/service)");
+    await dbConnection.asPromise();
+    console.log(`✅ MongoDB connection ready (${dbName})`);
   } catch (err) {
-    console.error("MongoDB Connection Failed:", err.message);
+    console.error("❌ MongoDB Connection Failed:", err.message);
     process.exit(1);
   }
 };
-// ⬆⬆ config/db.js 끝 ⬆⬆
