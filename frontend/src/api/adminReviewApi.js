@@ -1,21 +1,23 @@
 import axiosClient from "./axiosClient";
-import { mockReviewApi } from "./mockApi";
-
-const USE_MOCK = false;
 
 export const adminReviewApi = {
-  getReportedReviews: (params) => {
-    if (USE_MOCK) return mockReviewApi.getReviews(params);
-    return axiosClient.get("/reviews/admin/reported", { params });
+  // [관리자] 전체 리뷰 조회
+  getAdminReviews: (params) => {
+    return axiosClient.get("/reviews/admin", { params });
   },
-  approveReviewReport: (reviewId) => {
-    if (USE_MOCK) return mockReviewApi.deleteReview(reviewId);
-    return axiosClient.patch(`/reviews/admin/${reviewId}/approve-report`);
+  // [관리자] 리뷰 삭제
+  deleteReview: (reviewId) => {
+    return axiosClient.delete(`/reviews/admin/${reviewId}`);
   },
-  rejectReviewReport: (reviewId) => {
-    if (USE_MOCK) return mockReviewApi.rejectReport(reviewId);
-    return axiosClient.patch(`/reviews/admin/${reviewId}/reject-report`);
+  
+  // [사업자] 내 호텔 리뷰 조회
+  getOwnerReviews: (params) => {
+    return axiosClient.get("/reviews/owner", { params });
   },
+  // [사업자] 리뷰 답글 달기
+  replyReview: (reviewId, comment) => {
+    return axiosClient.post(`/reviews/owner/${reviewId}/reply`, { comment });
+  }
 };
 
 export default adminReviewApi;

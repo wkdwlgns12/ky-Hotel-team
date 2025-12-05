@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAdminAuth } from "../../hooks/useAdminAuth";
 
 const AdminLoginPage = () => {
   const navigate = useNavigate();
   const { login } = useAdminAuth();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,17 +21,15 @@ const AdminLoginPage = () => {
 
     try {
       const user = await login(formData);
-      // role에 따라 다른 대시보드로 리다이렉트
-      if (user?.role === "admin") {
+      // 역할에 따라 페이지 이동 분기
+      if (user.role === 'admin') {
         navigate("/admin/dashboard");
-      } else if (user?.role === "owner") {
-        navigate("/owner/dashboard");
       } else {
-        // 기본값은 admin 대시보드
-        navigate("/admin/dashboard");
+        navigate("/business/dashboard");
       }
     } catch (err) {
-      setError(err.message || "로그인에 실패했습니다.");
+      console.error(err);
+      setError("이메일 또는 비밀번호가 올바르지 않습니다.");
     } finally {
       setLoading(false);
     }
@@ -43,15 +38,9 @@ const AdminLoginPage = () => {
   return (
     <div className="login-page">
       <div className="login-container">
-        <h2>관리자 로그인</h2>
-
-        {/* 개발용 샘플 계정 안내 */}
-        <div className="sample-account-info">
-          <p>📌 테스트 계정</p>
-          <p>이메일: admin@hotel.com</p>
-          <p>비밀번호: admin1234</p>
-        </div>
-
+        <h2>통합 로그인</h2>
+        <p style={{color:'#666', marginBottom:'20px', textAlign:'center'}}>관리자 및 파트너(사업자)</p>
+        
         <form onSubmit={handleSubmit}>
           {error && <div className="error-message">{error}</div>}
 
@@ -62,7 +51,6 @@ const AdminLoginPage = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="admin@hotel.com"
               required
             />
           </div>
@@ -74,7 +62,6 @@ const AdminLoginPage = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="admin1234"
               required
             />
           </div>
@@ -83,6 +70,13 @@ const AdminLoginPage = () => {
             {loading ? "로그인 중..." : "로그인"}
           </button>
         </form>
+
+        <div style={{marginTop:'20px', textAlign:'center', borderTop:'1px solid #eee', paddingTop:'20px'}}>
+          <p style={{marginBottom:'10px'}}>파트너로 입점하고 싶으신가요?</p>
+          <Link to="/business/signup" className="btn btn-outline" style={{display:'inline-block', width:'100%', textAlign:'center'}}>
+            파트너 입점 신청하기
+          </Link>
+        </div>
       </div>
     </div>
   );

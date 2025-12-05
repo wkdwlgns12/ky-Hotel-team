@@ -1,21 +1,19 @@
-import { useState, useEffect } from "react";
-import { ownerApi } from "../../api/ownerApi";
+import { useEffect, useState } from "react";
+import { adminReviewApi } from "../../api/adminReviewApi";
 import Loader from "../../components/common/Loader";
 
 const BusinessReviewPage = () => {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [replyText, setReplyText] = useState("");
+  const [activeReviewId, setActiveReviewId] = useState(null);
 
-  useEffect(() => {
-    loadReviews();
-  }, []);
-
-  const loadReviews = async () => {
+  const fetchReviews = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const data = await ownerApi.getReportedReviews();
-      const reviewsData = data.data?.reviews || data.reviews || [];
-      setReviews(reviewsData);
+      // [백엔드] GET /api/reviews/owner
+      const response = await adminReviewApi.getOwnerReviews();
+      setReviews(Array.isArray(response) ? response : response.items || []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -23,58 +21,69 @@ const BusinessReviewPage = () => {
     }
   };
 
-  const handleReport = async (id) => {
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const handleReplySubmit = async (reviewId) => {
+    if (!replyText.trim()) return;
     try {
-      await ownerApi.escalateReview(id);
-      alert("신고가 접수되었습니다. 관리자가 검토 후 처리합니다.");
-      await loadReviews();
+      // [백엔드] POST /api/reviews/owner/:id/reply
+      await adminReviewApi.replyReview(reviewId, replyText);
+      alert("답글이 등록되었습니다.");
+      setReplyText("");
+      setActiveReviewId(null);
+      fetchReviews();
     } catch (error) {
-      alert("처리 중 오류가 발생했습니다.");
+      alert("답글 등록 실패: " + error.message);
     }
   };
 
-  if (loading) return <Loader fullScreen />;
+  if (loading) return <Loader />;
 
   return (
-    <div>
-      <div className="page-header"><h1>⭐ 리뷰 관리 (내 호텔)</h1></div>
-      <div className="card table-wrapper">
-        <table className="admin-table">
-          <thead><tr><th>작성자</th><th>내용</th><th>별점</th><th>상태 / 관리</th></tr></thead>
-          <tbody>
-            {reviews.map(r => (
-              <tr key={r.id}>
-                <td>{r.guestName}</td>
-                <td>
-                    <div style={{fontWeight:'bold', color:'#334155'}}>{r.title}</div>
-                    <div style={{fontSize:'0.9rem', color:'#64748b'}}>{r.comment}</div>
-                    
-                    {/* ★ 거부 사유 표시 ★ */}
-                    {r.status === 'rejected' && r.adminResponse && (
-                        <div style={{marginTop:'8px', padding:'8px', background:'#f3f4f6', borderRadius:'4px', fontSize:'0.85rem'}}>
-                            <span style={{fontWeight:'bold', color:'#d97706'}}>✋ 신고 거부됨:</span> {r.adminResponse}
-                        </div>
-                    )}
-                </td>
-                <td style={{color:'#f59e0b'}}>{"⭐".repeat(r.rating)}</td>
-                <td>
-                  {/* 상태에 따른 버튼 표시 */}
-                  {!r.reported && r.status !== 'rejected' && (
-                    <button className="btn btn-warning-sm" onClick={() => handleReport(r.id)}>🚨 신고하기</button>
-                  )}
-                  
-                  {r.reported && r.status === 'pending' && (
-                    <span className="badge badge-warning">관리자 검토중</span>
-                  )}
-
-                  {r.status === 'rejected' && (
-                    <span className="badge badge-secondary">신고 반려됨</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="page-container">
+      <h2>리뷰 관리</h2>
+      <div className="review-list">
+        {reviews.map((review) => (
+          <div key={review._id} className="card" style={{ marginBottom: "1rem" }}>
+            <div className="review-header" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <strong>{review.guestName || "Guest"}</strong>
+              <span>평점: {review.rating}</span>
+            </div>
+            <p className="review-content" style={{ margin: '10px 0' }}>{review.content}</p>
+            
+            {/* 답글 표시 */}
+            {review.reply ? (
+              <div className="review-reply" style={{ background: '#f8f9fa', padding: '10px', borderRadius: '5px' }}>
+                <strong>사장님 답글:</strong> {review.reply}
+              </div>
+            ) : (
+              // 답글 작성 폼
+              <div className="reply-form">
+                {activeReviewId === review._id ? (
+                  <div style={{ marginTop: '10px' }}>
+                    <textarea 
+                      value={replyText} 
+                      onChange={(e) => setReplyText(e.target.value)}
+                      placeholder="답글을 입력하세요"
+                      style={{ width: '100%', padding: '8px' }}
+                    />
+                    <div style={{ marginTop: '5px' }}>
+                      <button className="btn btn-sm btn-primary" onClick={() => handleReplySubmit(review._id)}>등록</button>
+                      <button className="btn btn-sm btn-secondary" onClick={() => setActiveReviewId(null)} style={{ marginLeft: '5px' }}>취소</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button className="btn btn-sm btn-outline" onClick={() => setActiveReviewId(review._id)}>
+                    답글 달기
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+        {reviews.length === 0 && <p>등록된 리뷰가 없습니다.</p>}
       </div>
     </div>
   );

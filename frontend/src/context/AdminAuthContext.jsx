@@ -1,52 +1,80 @@
 import { createContext, useState, useEffect } from "react";
-import adminAuthApi from "../api/adminAuthApi";
+import { adminAuthApi } from "../api/adminAuthApi";
+import { useNavigate, useLocation } from "react-router-dom";
 
-export const AdminAuthContext = createContext(null);
+export const AdminAuthContext = createContext();
 
 export const AdminAuthProvider = ({ children }) => {
-  const [adminInfo, setAdminInfo] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
 
+  // 초기 로딩 시 토큰 체크
   useEffect(() => {
-    checkAuth();
+    const initAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // 백엔드에 내 정보 요청
+        const userData = await adminAuthApi.getMyInfo();
+        setUser(userData.user || userData); // 구조에 따라 처리
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initAuth();
   }, []);
 
-  const checkAuth = async () => {
+  // 로그인 함수
+  const login = async (credentials) => {
     try {
-      const token = localStorage.getItem("adminToken");
-      if (token) {
-        const data = await adminAuthApi.getMyInfo();
-        const response = data.data || data;
-        setAdminInfo(response.user || response);
-      }
+      const data = await adminAuthApi.login(credentials);
+      // 백엔드 응답: { user, token }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+      return data.user;
     } catch (error) {
-      localStorage.removeItem("adminToken");
-    } finally {
-      setLoading(false);
+      throw error;
     }
   };
 
-  const login = async (credentials) => {
-    const data = await adminAuthApi.login(credentials);
-    const response = data.data || data;
-    const user = response.user || response.admin;
-    localStorage.setItem("adminToken", response.token);
-    setAdminInfo(user);
-    return user; // user 정보 반환 (role 포함)
+  // 로그아웃 함수
+  const logout = async () => {
+    try {
+      await adminAuthApi.logout();
+    } catch (e) {
+      // API 실패해도 클라이언트 로그아웃은 진행
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      navigate("/auth/login");
+    }
   };
 
-  const logout = async () => {
-    localStorage.removeItem("adminToken");
-    setAdminInfo(null);
+  // 내 정보 수정 함수 (context 업데이트용)
+  const updateMyInfo = async (updateData) => {
+    // 실제 API 호출은 컴포넌트에서 하고, 여기선 상태만 갱신하거나 
+    // 필요하면 여기서 API 호출까지 통합 가능.
+    // 여기서는 상태 갱신만 처리
+    setUser(prev => ({ ...prev, ...updateData }));
   };
 
   return (
-    <AdminAuthContext.Provider
-      value={{ adminInfo, loading, login, logout, checkAuth }}
-    >
+    <AdminAuthContext.Provider value={{ user, login, logout, loading, updateMyInfo }}>
       {children}
     </AdminAuthContext.Provider>
   );
 };
-
-export default AdminAuthContext;
