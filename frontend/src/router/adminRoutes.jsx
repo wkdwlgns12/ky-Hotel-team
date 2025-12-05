@@ -16,11 +16,16 @@ import AdminCouponCreatePage from "../pages/admin/AdminCouponCreatePage";
 import AdminCouponEditPage from "../pages/admin/AdminCouponEditPage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
 import AdminMyProfilePage from "../pages/admin/AdminMyProfilePage";
+import AuthCallback from "../pages/auth/AuthCallback"; // 추가
 
 const adminRoutes = [
   {
     path: "/auth/login",
     element: <AdminLoginPage />,
+  },
+  {
+    path: "/auth/callback", // 소셜 로그인 콜백 라우트 추가
+    element: <AuthCallback />,
   },
   {
     path: "/admin/login",
@@ -37,62 +42,20 @@ const adminRoutes = [
       {
         element: <AdminLayout />,
         children: [
-          {
-            index: true,
-            element: <Navigate to="/admin/dashboard" replace />,
-          },
-          {
-            path: "dashboard",
-            element: <AdminDashboardPage />,
-          },
-          {
-            path: "hotels",
-            element: <AdminHotelListPage />,
-          },
-          {
-            path: "hotels/new",
-            element: <AdminHotelCreatePage />,
-          },
-          {
-            path: "hotels/:hotelId/edit",
-            element: <AdminHotelEditPage />,
-          },
-          {
-            path: "users",
-            element: <AdminUserListPage />,
-          },
-          {
-            path: "users/:userId",
-            element: <AdminUserDetailPage />,
-          },
-          {
-            path: "reviews",
-            element: <AdminReviewListPage />,
-          },
-          {
-            path: "reviews/:reviewId",
-            element: <AdminReviewDetailPage />,
-          },
-          {
-            path: "coupons",
-            element: <AdminCouponListPage />,
-          },
-          {
-            path: "coupons/new",
-            element: <AdminCouponCreatePage />,
-          },
-          {
-            path: "coupons/:couponId/edit",
-            element: <AdminCouponEditPage />,
-          },
-          {
-            path: "settings",
-            element: <AdminSettingsPage />,
-          },
-          {
-            path: "me",
-            element: <AdminMyProfilePage />,
-          },
+          { index: true, element: <Navigate to="/admin/dashboard" replace /> },
+          { path: "dashboard", element: <AdminDashboardPage /> },
+          { path: "hotels", element: <AdminHotelListPage /> },
+          { path: "hotels/new", element: <AdminHotelCreatePage /> },
+          { path: "hotels/:hotelId/edit", element: <AdminHotelEditPage /> },
+          { path: "users", element: <AdminUserListPage /> },
+          { path: "users/:userId", element: <AdminUserDetailPage /> },
+          { path: "reviews", element: <AdminReviewListPage /> },
+          { path: "reviews/:reviewId", element: <AdminReviewDetailPage /> },
+          { path: "coupons", element: <AdminCouponListPage /> },
+          { path: "coupons/new", element: <AdminCouponCreatePage /> },
+          { path: "coupons/:couponId/edit", element: <AdminCouponEditPage /> },
+          { path: "settings", element: <AdminSettingsPage /> },
+          { path: "me", element: <AdminMyProfilePage /> },
         ],
       },
     ],

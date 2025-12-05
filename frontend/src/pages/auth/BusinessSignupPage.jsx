@@ -8,7 +8,9 @@ const BusinessSignupPage = () => {
     name: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    businessNumber: "",
+    phone: ""
   });
 
   const handleChange = (e) => {
@@ -24,12 +26,15 @@ const BusinessSignupPage = () => {
     }
 
     try {
+      // role: owner 는 API 내부에서 처리하거나 명시
       await adminAuthApi.businessSignup({
         name: formData.name,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        phone: formData.phone,
+        businessNumber: formData.businessNumber
       });
-      alert("가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
+      alert("파트너 가입이 완료되었습니다. 로그인 페이지로 이동합니다.");
       navigate("/auth/login");
     } catch (error) {
       const msg = error.response?.data?.message || "가입 중 오류가 발생했습니다.";
@@ -39,7 +44,7 @@ const BusinessSignupPage = () => {
 
   return (
     <div className="login-page">
-      <div className="login-container">
+      <div className="login-container" style={{maxWidth:'500px'}}>
         <h2 style={{textAlign:'center'}}>파트너 입점 신청</h2>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -57,6 +62,14 @@ const BusinessSignupPage = () => {
           <div className="form-group">
             <label>비밀번호 확인</label>
             <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label>연락처</label>
+            <input name="phone" value={formData.phone} onChange={handleChange} placeholder="010-0000-0000" />
+          </div>
+          <div className="form-group">
+            <label>사업자 등록번호</label>
+            <input name="businessNumber" value={formData.businessNumber} onChange={handleChange} placeholder="000-00-00000" />
           </div>
           <button type="submit" className="btn btn-primary" style={{width:'100%', marginTop:'15px'}}>가입하기</button>
         </form>

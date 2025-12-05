@@ -4,7 +4,7 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    region: "서울", // UI에서는 '지역(Region)'으로 표시
+    region: "서울", // UI용
     category: "호텔",
     rooms: 100,
     priceMin: 0,
@@ -17,7 +17,7 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
       setFormData({
         name: hotel.name || "",
         address: hotel.address || "",
-        region: hotel.city || "서울", // 백엔드의 city 값을 region 상태에 반영
+        region: hotel.city || "서울", // DB: city
         category: hotel.category || "호텔",
         rooms: hotel.rooms || 0,
         priceMin: hotel.price?.min || 0,
@@ -35,11 +35,10 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    // ★ 백엔드 스키마에 맞게 데이터 변환
     const payload = {
       name: formData.name,
       address: formData.address,
-      city: formData.region, // 'region' 값을 'city' 필드로 전송
+      city: formData.region, // DB 필드명 매핑
       category: formData.category,
       rooms: parseInt(formData.rooms),
       price: { 
@@ -47,7 +46,6 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
         max: parseInt(formData.priceMax) 
       },
       description: formData.description,
-      // 필요한 경우 images, amenities 추가
     };
 
     onSubmit(payload);
@@ -71,12 +69,40 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
           <option value="제주">제주</option>
           <option value="경기">경기</option>
           <option value="강원">강원</option>
+          <option value="인천">인천</option>
         </select>
       </div>
-      {/* ... 나머지 필드 (객실 수, 가격, 설명 등) 기존 코드 유지 ... */}
-      <div className="form-actions" style={{marginTop: '20px', display: 'flex', gap: '10px'}}>
+      <div className="form-group">
+        <label>카테고리</label>
+        <select name="category" value={formData.category} onChange={handleChange}>
+          <option value="호텔">호텔</option>
+          <option value="리조트">리조트</option>
+          <option value="펜션">펜션</option>
+          <option value="모텔">모텔</option>
+        </select>
+      </div>
+      <div className="form-group">
+        <label>객실 수</label>
+        <input type="number" name="rooms" value={formData.rooms} onChange={handleChange} />
+      </div>
+      <div className="form-group" style={{display:'flex', gap:'10px'}}>
+        <div style={{flex:1}}>
+            <label>최저가</label>
+            <input type="number" name="priceMin" value={formData.priceMin} onChange={handleChange} />
+        </div>
+        <div style={{flex:1}}>
+            <label>최고가</label>
+            <input type="number" name="priceMax" value={formData.priceMax} onChange={handleChange} />
+        </div>
+      </div>
+      <div className="form-group">
+        <label>설명</label>
+        <textarea name="description" value={formData.description} onChange={handleChange} rows={4} />
+      </div>
+      
+      <div className="form-actions" style={{marginTop: '20px', display: 'flex', gap: '10px', justifyContent:'flex-end'}}>
+        <button type="button" onClick={onCancel} className="btn btn-outline">취소</button>
         <button type="submit" className="btn btn-primary">저장</button>
-        <button type="button" onClick={onCancel} className="btn btn-secondary">취소</button>
       </div>
     </form>
   );
