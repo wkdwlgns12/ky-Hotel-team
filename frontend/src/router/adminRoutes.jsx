@@ -7,16 +7,12 @@ import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import AdminHotelListPage from "../pages/admin/AdminHotelListPage";
 import AdminHotelCreatePage from "../pages/admin/AdminHotelCreatePage";
 import AdminHotelEditPage from "../pages/admin/AdminHotelEditPage";
-import AdminUserListPage from "../pages/admin/AdminUserListPage";
-import AdminUserDetailPage from "../pages/admin/AdminUserDetailPage";
 import AdminReviewListPage from "../pages/admin/AdminReviewListPage";
 import AdminReviewDetailPage from "../pages/admin/AdminReviewDetailPage";
 import AdminCouponListPage from "../pages/admin/AdminCouponListPage";
 import AdminCouponCreatePage from "../pages/admin/AdminCouponCreatePage";
 import AdminCouponEditPage from "../pages/admin/AdminCouponEditPage";
-import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
-import AdminMyProfilePage from "../pages/admin/AdminMyProfilePage";
-import AuthCallback from "../pages/auth/AuthCallback"; // 추가
+import AuthCallback from "../pages/auth/AuthCallback";
 
 const adminRoutes = [
   {
@@ -24,7 +20,7 @@ const adminRoutes = [
     element: <AdminLoginPage />,
   },
   {
-    path: "/auth/callback", // 소셜 로그인 콜백 라우트 추가
+    path: "/auth/callback",
     element: <AuthCallback />,
   },
   {
@@ -47,15 +43,12 @@ const adminRoutes = [
           { path: "hotels", element: <AdminHotelListPage /> },
           { path: "hotels/new", element: <AdminHotelCreatePage /> },
           { path: "hotels/:hotelId/edit", element: <AdminHotelEditPage /> },
-          { path: "users", element: <AdminUserListPage /> },
-          { path: "users/:userId", element: <AdminUserDetailPage /> },
           { path: "reviews", element: <AdminReviewListPage /> },
           { path: "reviews/:reviewId", element: <AdminReviewDetailPage /> },
           { path: "coupons", element: <AdminCouponListPage /> },
           { path: "coupons/new", element: <AdminCouponCreatePage /> },
           { path: "coupons/:couponId/edit", element: <AdminCouponEditPage /> },
-          { path: "settings", element: <AdminSettingsPage /> },
-          { path: "me", element: <AdminMyProfilePage /> },
+          // Users, Settings, Profile 라우트 제거 (백엔드 미구현)
         ],
       },
     ],

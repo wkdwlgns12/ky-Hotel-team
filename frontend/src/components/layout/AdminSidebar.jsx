@@ -1,30 +1,28 @@
 import { NavLink } from "react-router-dom";
 
 const AdminSidebar = () => {
+  // 백엔드에 구현된 기능(호텔, 리뷰, 쿠폰, 대시보드)만 메뉴에 표시
   const menus = [
     { name: "대시보드", path: "/admin/dashboard", icon: "📊" },
     { name: "호텔 관리", path: "/admin/hotels", icon: "🏨" },
-    { name: "회원 관리", path: "/admin/users", icon: "👥" },
     { name: "리뷰 관리", path: "/admin/reviews", icon: "⭐" },
     { name: "쿠폰 관리", path: "/admin/coupons", icon: "🎫" },
-    { name: "설정", path: "/admin/settings", icon: "⚙️" },
-    { name: "내 정보", path: "/admin/profile", icon: "👤" },
   ];
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <h3>Admin Panel</h3>
+    <aside className="admin-sidebar">
+      <div className="sidebar-logo">
+        <h2>Admin Panel</h2>
       </div>
-      <nav className="sidebar-nav">
-        <ul>
+      <nav>
+        <ul className="sidebar-menu">
           {menus.map((menu) => (
             <li key={menu.path}>
               <NavLink
                 to={menu.path}
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
-                <span className="icon">{menu.icon}</span>
+                <span>{menu.icon}</span>
                 {menu.name}
               </NavLink>
             </li>

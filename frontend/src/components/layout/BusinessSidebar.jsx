@@ -1,30 +1,29 @@
 import { NavLink } from "react-router-dom";
 
 const BusinessSidebar = () => {
+  // 백엔드에 구현된 기능만 메뉴에 표시 (설정, 내 정보 제거)
   const menus = [
-    { name: "대시보드", path: "/business/dashboard", icon: "📊" },
-    { name: "내 호텔 관리", path: "/business/hotels", icon: "🏨" },
-    { name: "예약 현황", path: "/business/bookings", icon: "📅" },
-    { name: "리뷰 관리", path: "/business/reviews", icon: "⭐" },
-    { name: "쿠폰 관리", path: "/business/coupons", icon: "🎫" },
-    { name: "설정", path: "/business/settings", icon: "⚙️" },
-    { name: "내 정보", path: "/business/profile", icon: "👤" },
+    { name: "대시보드", path: "/owner/dashboard", icon: "📊" },
+    { name: "내 호텔 관리", path: "/owner/my-hotel", icon: "🏨" },
+    { name: "예약 현황", path: "/owner/bookings", icon: "📅" },
+    { name: "리뷰 관리", path: "/owner/reviews", icon: "⭐" },
+    { name: "쿠폰 관리", path: "/owner/coupons", icon: "🎫" },
   ];
 
   return (
-    <aside className="sidebar business-theme">
-      <div className="sidebar-header">
-        <h3>Partner Center</h3>
+    <aside className="admin-sidebar">
+      <div className="sidebar-logo">
+        <h2>Partner Center</h2>
       </div>
-      <nav className="sidebar-nav">
-        <ul>
+      <nav>
+        <ul className="sidebar-menu">
           {menus.map((menu) => (
             <li key={menu.path}>
               <NavLink
                 to={menu.path}
                 className={({ isActive }) => (isActive ? "active" : "")}
               >
-                <span className="icon">{menu.icon}</span>
+                <span>{menu.icon}</span>
                 {menu.name}
               </NavLink>
             </li>

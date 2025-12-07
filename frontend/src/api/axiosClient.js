@@ -6,7 +6,8 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // 쿠키/세션 사용 시 필요
+  // 🚨 CORS 오류 해결: JWT 방식에서는 쿠키가 필수 아님. false로 변경하거나 삭제.
+  withCredentials: false, 
 });
 
 // 요청 인터셉터
@@ -24,7 +25,6 @@ axiosClient.interceptors.request.use(
 // 응답 인터셉터
 axiosClient.interceptors.response.use(
   (response) => {
-    // 백엔드 응답 구조가 { success: true, data: ... } 라면 data만 반환
     if (response.data && response.data.data !== undefined) {
       return response.data.data;
     }
