@@ -20,9 +20,14 @@ const AdminCouponListPage = ({ readOnly = false }) => {
     try {
       setLoading(true);
       const data = await adminCouponApi.getCoupons();
-      const couponsData = data.data?.coupons || data.coupons || [];
+      
+      // ✅ 수정된 부분: 백엔드가 보내주는 'items' 배열을 찾도록 변경
+      // axiosClient가 이미 response.data.data를 반환하므로 data.items가 존재함
+      const couponsData = data.items || data.data?.items || [];
+      
       setCoupons(couponsData);
     } catch (err) {
+      console.error(err);
       setError("쿠폰 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -30,10 +35,11 @@ const AdminCouponListPage = ({ readOnly = false }) => {
   };
 
   const handleDelete = async (couponId) => {
-    if (!confirm("정말 삭제하시겠습니까?")) return;
+    if (!confirm("정말 삭제(비활성화) 하시겠습니까?")) return;
     try {
       await adminCouponApi.deactivateCoupon(couponId);
-      fetchCoupons();
+      alert("쿠폰이 비활성화되었습니다.");
+      fetchCoupons(); // 목록 새로고침
     } catch (err) {
       alert("삭제에 실패했습니다.");
     }

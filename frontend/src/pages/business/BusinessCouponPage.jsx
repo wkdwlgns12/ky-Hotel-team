@@ -19,9 +19,13 @@ const BusinessCouponPage = () => {
     try {
       setLoading(true);
       const data = await ownerApi.getCoupons();
-      const couponsData = data.data?.coupons || data.coupons || [];
+      
+      // ✅ 수정된 부분: 백엔드가 보내주는 'items' 배열을 찾도록 변경
+      const couponsData = data.items || data.data?.items || [];
+      
       setCoupons(couponsData);
     } catch (err) {
+      console.error(err);
       setError("쿠폰 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
@@ -34,9 +38,10 @@ const BusinessCouponPage = () => {
   return (
     <div className="admin-coupon-list-page">
       <div className="page-header">
-        <h1>🎫 쿠폰 관리</h1>
+        <h1>🎫 내 쿠폰 관리</h1>
       </div>
 
+      {/* 사업자는 삭제 권한 없이 조회(readOnly)만 가능하도록 설정됨 (필요시 false로 변경) */}
       <AdminCouponTable coupons={coupons} readOnly={true} />
     </div>
   );
