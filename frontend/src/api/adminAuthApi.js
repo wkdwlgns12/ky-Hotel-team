@@ -1,16 +1,14 @@
 import axiosClient from "./axiosClient";
 
 export const adminAuthApi = {
-  // 로그인 (POST /api/auth/login)
   login: (credentials) => axiosClient.post("/auth/login", credentials),
-  
-  // 사업자 가입 (POST /api/auth/owner/register)
-  businessSignup: (data) => axiosClient.post("/auth/owner/register", data),
-
-  // 관리자/일반 가입 (POST /api/auth/register) -> 관리자 생성용
-  register: (data) => axiosClient.post("/auth/register", data),
-
-  // 내 정보 (GET /api/auth/me) -> 토큰 검증용
+  register: (data) => axiosClient.post("/auth/register", data), // 일반/관리자
+  businessSignup: (data) => axiosClient.post("/auth/owner/register", data), // 사업자
   getMyInfo: () => axiosClient.get("/auth/me"),
+  forgotPassword: (email) => {
+    // 백엔드 구현 필요 시 추가, 현재는 더미 처리 혹은 에러 처리
+    console.warn("Forgot Password API not implemented in backend");
+    return Promise.resolve();
+  }
 };
 export default adminAuthApi;
