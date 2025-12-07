@@ -1,11 +1,11 @@
 import axiosClient from "./axiosClient";
 
 export const adminUserApi = {
-  // [관리자] 회원 목록
+  // [관리자] 전체 유저 목록
   getUsers: (params) => {
     return axiosClient.get("/user/admin", { params });
   },
-  // [관리자] 회원 정보 수정
+  // [관리자] 유저 정보 수정 (권한 등)
   updateUser: (userId, data) => {
     return axiosClient.put(`/user/admin/${userId}`, data);
   },
@@ -16,7 +16,7 @@ export const adminUserApi = {
   // [공통] 비밀번호 변경
   changePassword: (data) => {
     return axiosClient.put("/user/me/password", data);
-  },
+  }
 };
 
 export default adminUserApi;

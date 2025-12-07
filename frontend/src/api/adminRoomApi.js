@@ -1,7 +1,7 @@
 import axiosClient from "./axiosClient";
 
 export const adminRoomApi = {
-  // [사업자] 특정 호텔의 객실 목록 조회
+  // [사업자] 특정 호텔의 객실 목록
   getRoomsByHotel: (hotelId) => {
     return axiosClient.get(`/room/owner/hotel/${hotelId}`);
   },

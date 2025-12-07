@@ -1,13 +1,15 @@
 import axios from "axios";
 
 const axiosClient = axios.create({
-  baseURL: "/api", // Vite Proxy (/api -> http://localhost:3000/api)
+  baseURL: import.meta.env.VITE_API_BASE_URL || "/api",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // 쿠키/세션 사용 시 필요
 });
 
+// 요청 인터셉터
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -19,22 +21,25 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// 응답 인터셉터
 axiosClient.interceptors.response.use(
   (response) => {
-    // response.js 포맷: { success: true, data: ..., message: ... }
-    // API 호출 부에서 바로 데이터를 쓸 수 있게 data 필드 반환
-    return response.data?.data !== undefined ? response.data.data : response.data;
+    // 백엔드 응답 구조가 { success: true, data: ... } 라면 data만 반환
+    if (response.data && response.data.data !== undefined) {
+      return response.data.data;
+    }
+    return response.data;
   },
   (error) => {
     if (error.response?.status === 401) {
-      // 인증 실패 시 로그인 화면으로 이동 (무한 루프 방지)
       if (!window.location.pathname.includes("/auth")) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         window.location.href = "/auth/login";
       }
     }
-    return Promise.reject(error);
+    const errorMessage = error.response?.data?.message || error.message || "오류가 발생했습니다.";
+    return Promise.reject(new Error(errorMessage));
   }
 );
 

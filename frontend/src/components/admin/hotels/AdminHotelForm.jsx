@@ -4,7 +4,7 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    region: "서울", // UI용
+    region: "서울",
     category: "호텔",
     rooms: 100,
     priceMin: 0,
@@ -35,10 +35,11 @@ const AdminHotelForm = ({ hotel, onSubmit, onCancel }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
+    // 백엔드 스키마 맞춤 (city, price 객체)
     const payload = {
       name: formData.name,
       address: formData.address,
-      city: formData.region, // DB 필드명 매핑
+      city: formData.region, 
       category: formData.category,
       rooms: parseInt(formData.rooms),
       price: { 

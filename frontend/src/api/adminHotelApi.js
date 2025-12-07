@@ -13,13 +13,6 @@ export const adminHotelApi = {
   updateHotel: (hotelId, data) => {
     return axiosClient.patch(`/hotel/owner/${hotelId}`, data);
   },
-  // [사업자] 호텔 삭제
-  deleteHotel: (hotelId) => {
-    // 백엔드 라우트에 맞춰 수정 필요 (현재 삭제 API 부재 시 예외 처리)
-    // 임시로 owner 경로로 요청
-    return axiosClient.delete(`/hotel/owner/${hotelId}`);
-  },
-
   // [관리자] 승인 대기 목록
   getPendingHotels: () => {
     return axiosClient.get("/hotel/admin/pending");
@@ -32,12 +25,6 @@ export const adminHotelApi = {
   rejectHotel: (hotelId, reason) => {
     return axiosClient.patch(`/hotel/admin/${hotelId}/reject`, { reason });
   },
-  
-  // 상세 조회 (공용)
-  getHotelById: (hotelId) => {
-    // 백엔드 구조에 따라 경로 확인 필요. 임시로 owner 경로 사용
-    return axiosClient.get(`/hotel/owner/${hotelId}`); 
-  }
 };
 
 export default adminHotelApi;
