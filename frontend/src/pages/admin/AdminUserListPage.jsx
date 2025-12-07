@@ -1,66 +1,57 @@
 import { useState, useEffect } from "react";
 import { adminUserApi } from "../../api/adminUserApi";
-import { useNavigate } from "react-router-dom";
+import AdminUserTable from "../../components/admin/users/AdminUserTable";
+import AdminUserFilter from "../../components/admin/users/AdminUserFilter";
 import Loader from "../../components/common/Loader";
+import Pagination from "../../components/common/Pagination"; //
 
 const AdminUserListPage = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
-  const navigate = useNavigate();
+  const [filters, setFilters] = useState({ role: "", search: "" });
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const loadUsers = async () => {
+  const fetchUsers = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const params = {};
-      if (activeTab === 'regular') params.role = 'user';
-      if (activeTab === 'business') params.role = 'owner';
-      
-      const response = await adminUserApi.getUsers(params);
-      setUsers(response.items || []);
-    } catch (error) { 
+      const params = { page, limit: 10, ...filters };
+      const res = await adminUserApi.getUsers(params);
+      setUsers(res.items || []); // 백엔드 응답 구조에 맞춤
+      setTotalPages(res.totalPages || 1);
+    } catch (error) {
       console.error(error);
-      setUsers([]);
-    } 
-    finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { loadUsers(); }, [activeTab]);
+  useEffect(() => {
+    fetchUsers();
+  }, [page]); // 페이지 변경 시 자동 호출
+
+  const handleUpdateUser = async (userId, data) => {
+    try {
+      await adminUserApi.updateUser(userId, data); // 백엔드 PUT /api/user/admin/:userId
+      alert("처리되었습니다.");
+      fetchUsers();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+  if (loading) return <Loader fullScreen />;
 
   return (
-    <div className="admin-user-page">
+    <div className="page-container">
       <div className="page-header"><h1>👥 회원 관리</h1></div>
-      
-      <div className="tabs" style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={() => setActiveTab("all")} className={`btn ${activeTab === "all" ? "btn-primary" : "btn-outline"}`}>전체</button>
-        <button onClick={() => setActiveTab("regular")} className={`btn ${activeTab === "regular" ? "btn-primary" : "btn-outline"}`}>일반 회원</button>
-        <button onClick={() => setActiveTab("business")} className={`btn ${activeTab === "business" ? "btn-primary" : "btn-outline"}`}>사업자 회원</button>
-      </div>
-
-      {loading ? <Loader /> : (
-        <div className="table-wrapper card">
-          <table className="admin-table">
-            <thead><tr><th>회원명</th><th>이메일</th><th>유형</th><th>가입일</th><th>관리</th></tr></thead>
-            <tbody>
-              {users.length > 0 ? users.map(user => (
-                <tr key={user._id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td><span className="badge badge-secondary">{user.role}</span></td>
-                  <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <button className="btn btn-outline-sm" onClick={() => navigate(`/admin/users/${user._id}`)}>상세보기</button>
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan="5" style={{textAlign:'center', padding:'20px'}}>등록된 회원이 없습니다.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <AdminUserFilter 
+        filters={filters} 
+        onFilterChange={(newFilters) => setFilters(prev => ({...prev, ...newFilters}))}
+        onSearch={() => { setPage(1); fetchUsers(); }}
+      />
+      <AdminUserTable users={users} onUpdateUser={handleUpdateUser} />
+      <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
     </div>
   );
 };
