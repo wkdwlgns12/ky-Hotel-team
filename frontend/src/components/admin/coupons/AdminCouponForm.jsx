@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 
-const AdminCouponForm = ({ coupon, onSubmit, onCancel, readOnly = false }) => {
+// owners prop 추가
+const AdminCouponForm = ({ coupon, owners = [], onSubmit, onCancel, readOnly = false }) => {
   const [formData, setFormData] = useState({
     name: "",
     code: "",
     type: "fixed",
     discount: 0,
     minOrderAmount: 0,
-    quantity: 100, // ★ 수량 추가
+    quantity: 100,
     startDate: "",
     endDate: "",
     description: "",
+    ownerId: "", // ownerId 필드 추가
   });
 
   useEffect(() => {
@@ -19,6 +21,7 @@ const AdminCouponForm = ({ coupon, onSubmit, onCancel, readOnly = false }) => {
         ...coupon,
         quantity: coupon.quantity || 100,
         minOrderAmount: coupon.minOrderAmount || 0,
+        ownerId: coupon.owner?._id || coupon.owner || "", // 수정 시 기존 owner 설정
       });
     }
   }, [coupon]);
@@ -30,6 +33,28 @@ const AdminCouponForm = ({ coupon, onSubmit, onCancel, readOnly = false }) => {
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); !readOnly && onSubmit(formData); }} className="card">
+      
+      {/* ▼▼▼ 사업자 선택 필드 추가 ▼▼▼ */}
+      <div className="form-group">
+        <label>쿠폰 적용 사업자 (Owner) <span style={{color:'red'}}>*</span></label>
+        <select 
+          name="ownerId" 
+          value={formData.ownerId} 
+          onChange={handleChange} 
+          required 
+          disabled={readOnly}
+          style={{ padding: '8px', width: '100%', border: '1px solid #e2e8f0', borderRadius: '4px' }}
+        >
+          <option value="">사업자를 선택하세요</option>
+          {owners.map(owner => (
+            <option key={owner._id} value={owner._id}>
+              {owner.name} ({owner.email})
+            </option>
+          ))}
+        </select>
+      </div>
+      {/* ▲▲▲ 추가된 부분 끝 ▲▲▲ */}
+
       <div className="form-group">
         <label>쿠폰명</label>
         <input 
@@ -39,6 +64,8 @@ const AdminCouponForm = ({ coupon, onSubmit, onCancel, readOnly = false }) => {
         />
       </div>
 
+      {/* ... 나머지 코드는 기존과 동일 ... */}
+      
       <div className="form-group">
         <label>쿠폰 코드</label>
         <input 
@@ -63,7 +90,6 @@ const AdminCouponForm = ({ coupon, onSubmit, onCancel, readOnly = false }) => {
       </div>
 
       <div className="form-group" style={{ display: 'flex', gap: '20px' }}>
-        {/* ★ 등급 삭제됨 -> 수량 및 조건으로 변경 ★ */}
         <div style={{ flex: 1 }}>
           <label>발급 수량 (개)</label>
           <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} required disabled={readOnly} />
@@ -78,11 +104,11 @@ const AdminCouponForm = ({ coupon, onSubmit, onCancel, readOnly = false }) => {
       <div className="form-group" style={{ display: 'flex', gap: '20px' }}>
         <div style={{ flex: 1 }}>
           <label>시작일</label>
-          <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} required disabled={readOnly} />
+          <input type="date" name="startDate" value={formData.startDate ? formData.startDate.split('T')[0] : ''} onChange={handleChange} required disabled={readOnly} />
         </div>
         <div style={{ flex: 1 }}>
           <label>종료일</label>
-          <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} required disabled={readOnly} />
+          <input type="date" name="endDate" value={formData.endDate ? formData.endDate.split('T')[0] : ''} onChange={handleChange} required disabled={readOnly} />
         </div>
       </div>
 
