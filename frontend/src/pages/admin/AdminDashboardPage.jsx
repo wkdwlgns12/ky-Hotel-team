@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminStatsCards from "../../components/admin/dashboard/AdminStatsCards";
 import AdminChartArea from "../../components/admin/dashboard/AdminChartArea";
-import { adminStatsApi } from "../../api/adminStatsApi";
+import adminStatsApi from "../../api/adminStatsApi";
 import Loader from "../../components/common/Loader";
 
 const AdminDashboardPage = () => {
@@ -24,12 +24,10 @@ const AdminDashboardPage = () => {
 
   if (loading) return <Loader />;
   
-  // 데이터가 없을 경우 처리
-  const safeStats = stats || { 
-    totalReservations: 0, 
-    totalRevenue: 0, 
-    activeHotels: 0, 
-    monthlyRevenue: [] 
+  const safeStats = stats || {};
+  const chartData = safeStats.monthlyRevenue || { 
+    labels: ["최근 30일"], 
+    revenue: [safeStats.revenue?.last30DaysTotal || 0] 
   };
 
   return (
@@ -37,7 +35,7 @@ const AdminDashboardPage = () => {
       <h2>관리자 대시보드</h2>
       <AdminStatsCards stats={safeStats} />
       <div className="charts-section" style={{marginTop:'20px'}}>
-        <AdminChartArea data={safeStats.monthlyRevenue} />
+        <AdminChartArea data={chartData} />
       </div>
     </div>
   );

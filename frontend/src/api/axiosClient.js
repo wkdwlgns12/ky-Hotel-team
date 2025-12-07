@@ -6,11 +6,10 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  // 🚨 CORS 오류 해결: JWT 방식에서는 쿠키가 필수 아님. false로 변경하거나 삭제.
-  withCredentials: false, 
+  withCredentials: false, // JWT 방식이므로 false 권장
 });
 
-// 요청 인터셉터
+// 요청 인터셉터: 헤더에 토큰 추가
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -22,9 +21,10 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 응답 인터셉터
+// 응답 인터셉터: data 추출 및 에러 처리
 axiosClient.interceptors.response.use(
   (response) => {
+    // 백엔드가 { success: true, data: {...}, message: "..." } 형태로 줄 경우
     if (response.data && response.data.data !== undefined) {
       return response.data.data;
     }
@@ -32,6 +32,7 @@ axiosClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
+      // 인증 실패 시 로그인 페이지로 (단, 로그인 중일 땐 제외)
       if (!window.location.pathname.includes("/auth")) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");

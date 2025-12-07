@@ -23,7 +23,6 @@ const businessRoutes = [
       { path: "reviews", element: <BusinessReviewPage /> },
       { path: "coupons", element: <BusinessCouponPage /> },
       { path: "coupons/:couponId", element: <BusinessCouponDetailPage /> },
-      // Settings, Profile 라우트 제거
     ],
   },
 ];

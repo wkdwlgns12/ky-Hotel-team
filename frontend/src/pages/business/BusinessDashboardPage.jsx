@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminStatsCards from "../../components/admin/dashboard/AdminStatsCards";
 import AdminChartArea from "../../components/admin/dashboard/AdminChartArea";
-import { adminStatsApi } from "../../api/adminStatsApi";
+import adminStatsApi from "../../api/adminStatsApi";
 import Loader from "../../components/common/Loader";
 
 const BusinessDashboardPage = () => {
@@ -23,16 +23,21 @@ const BusinessDashboardPage = () => {
   }, []);
 
   if (loading) return <Loader />;
-  
-  if (!stats) return <div style={{padding:'20px'}}>등록된 호텔이 없거나 데이터가 부족합니다.</div>;
+  if (!stats) return <div style={{padding:'20px'}}>데이터를 불러올 수 없습니다.</div>;
+
+  // 백엔드에서 monthlyRevenue가 오면 쓰고, 없으면 기본값
+  const chartData = stats.monthlyRevenue || { 
+    labels: ["최근 30일"], 
+    revenue: [stats.revenue?.last30DaysTotal || 0] 
+  };
 
   return (
     <div className="dashboard-page">
       <h2>비즈니스 현황</h2>
       <AdminStatsCards stats={stats} />
       <div className="charts-section" style={{marginTop:'20px'}}>
-        <h3>월별 수익</h3>
-        <AdminChartArea data={stats.monthlyRevenue || []} />
+        <h3>매출 현황</h3>
+        <AdminChartArea data={chartData} />
       </div>
     </div>
   );
