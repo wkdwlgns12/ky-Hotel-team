@@ -6,56 +6,82 @@ const AdminReviewTable = ({ reviews, onApprove, onReject }) => {
       <table className="admin-table">
         <thead>
           <tr>
-            <th>호텔명</th>
-            <th>신고 내용 (사유)</th>
-            <th>작성자</th>
-            <th>별점</th>
-            <th style={{width: '200px'}}>신고 처리</th>
+            <th style={{ width: '15%' }}>호텔명</th>
+            <th style={{ width: '40%' }}>리뷰 및 신고 사유</th>
+            <th style={{ width: '15%' }}>작성자</th>
+            <th style={{ width: '10%' }}>평점</th>
+            <th style={{ width: '20%' }}>관리</th>
           </tr>
         </thead>
         <tbody>
           {reviews.length > 0 ? reviews.map((review) => (
-            <tr key={review.id}>
-              <td>{review.hotelName}</td>
+            <tr key={review._id}>
+              {/* 호텔 이름 */}
+              <td style={{ fontWeight: 'bold', color: '#475569' }}>
+                {review.hotelId?.name || "알 수 없음"}
+              </td>
+              
+              {/* 리뷰 내용 및 신고 사유 */}
               <td>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <Link to={`/admin/reviews/${review.id}`} style={{ color: '#2563eb', fontWeight: 500, textDecoration:'none' }}>
-                    {review.title}
-                  </Link>
-                  <span style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '2px' }}>{review.comment}</span>
-                  {/* 신고 사유 표시 */}
-                  <div style={{marginTop:'6px', fontSize:'0.8rem', color:'#ef4444', background:'#fef2f2', padding:'4px 8px', borderRadius:'4px', display:'inline-block'}}>
-                    🚨 신고 사유: {review.reportReason}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ fontSize: '0.95rem', color: '#334155' }}>
+                    "{review.comment}"
                   </div>
+                  {review.ownerReportReason && (
+                    <div style={{ 
+                      fontSize: '0.85rem', 
+                      color: '#b91c1c', 
+                      background: '#fef2f2', 
+                      padding: '6px 10px', 
+                      borderRadius: '6px',
+                      borderLeft: '3px solid #ef4444'
+                    }}>
+                      🚨 <strong>신고 사유:</strong> {review.ownerReportReason}
+                    </div>
+                  )}
                 </div>
               </td>
-              <td>{review.guestName}</td>
-              <td style={{ color: '#f59e0b' }}>{"⭐".repeat(review.rating)}</td>
+
+              {/* 작성자 정보 */}
               <td>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    {/* 승인 버튼 -> 리뷰 삭제 */}
-                    <button 
-                        className="btn btn-danger-sm" 
-                        onClick={() => onApprove(review.id)}
-                        title="신고를 승인하고 리뷰를 삭제합니다"
-                    >
-                        승인(삭제)
-                    </button>
-                    
-                    {/* 거부 버튼 -> 사유 입력 */}
-                    <button 
-                        className="btn btn-outline" 
-                        style={{fontSize:'0.8rem', padding:'4px 10px'}}
-                        onClick={() => onReject(review.id)}
-                        title="신고를 반려합니다"
-                    >
-                        거부(반려)
-                    </button>
+                <div>{review.userId?.name || "익명"}</div>
+                <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{review.userId?.email}</div>
+              </td>
+
+              {/* 별점 */}
+              <td>
+                <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>
+                  {"⭐".repeat(review.rating)}
+                </span>
+              </td>
+
+              {/* 관리 버튼 */}
+              <td>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                  <button 
+                    className="btn btn-danger-sm" 
+                    onClick={() => onApprove(review._id)}
+                    title="리뷰를 삭제합니다"
+                  >
+                    삭제 승인 (Delete)
+                  </button>
+                  <button 
+                    className="btn btn-outline" 
+                    style={{ fontSize: '0.8rem', padding: '5px' }}
+                    onClick={() => onReject(review._id)}
+                    title="리뷰를 유지합니다"
+                  >
+                    신고 반려 (Keep)
+                  </button>
                 </div>
               </td>
             </tr>
           )) : (
-             <tr><td colSpan="5" style={{textAlign:'center', padding:'20px'}}>신고된 리뷰가 없습니다.</td></tr>
+             <tr>
+               <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>
+                 현재 심사 대기 중인 신고 리뷰가 없습니다.
+               </td>
+             </tr>
           )}
         </tbody>
       </table>

@@ -1,13 +1,14 @@
 import { NavLink } from "react-router-dom";
 
 const BusinessSidebar = () => {
-  // 백엔드 API가 존재하는 메뉴만 표시
   const menus = [
     { name: "대시보드", path: "/owner/dashboard", icon: "📊" },
-    { name: "내 호텔 관리", path: "/owner/my-hotel", icon: "🏨" },
+    { name: "내 호텔 관리", path: "/owner/my-hotel", icon: "🏨" }, // 객실 관리는 이 페이지 내부에서 처리
     { name: "예약 현황", path: "/owner/bookings", icon: "📅" },
-    { name: "리뷰 관리 (신고)", path: "/owner/reviews", icon: "🚨" }, // 신고된 리뷰만 조회 가능
-    { name: "쿠폰 관리", path: "/owner/coupons", icon: "🎫" },
+    { name: "리뷰 관리 (신고)", path: "/owner/reviews", icon: "🚨" },
+    { name: "쿠폰 조회", path: "/owner/coupons", icon: "🎫" },
+    { name: "설정", path: "/owner/settings", icon: "⚙️" },
+    { name: "내 정보", path: "/owner/me", icon: "👤" },
   ];
 
   return (

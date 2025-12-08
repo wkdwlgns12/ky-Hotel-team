@@ -5,7 +5,6 @@ import { adminCouponApi } from "../../api/adminCouponApi";
 import Loader from "../../components/common/Loader";
 import ErrorMessage from "../../components/common/ErrorMessage";
 
-// readOnly prop 추가
 const AdminCouponListPage = ({ readOnly = false }) => {
   const navigate = useNavigate();
   const [coupons, setCoupons] = useState([]);
@@ -19,12 +18,9 @@ const AdminCouponListPage = ({ readOnly = false }) => {
   const fetchCoupons = async () => {
     try {
       setLoading(true);
-      const data = await adminCouponApi.getCoupons();
-      
-      // ✅ 수정된 부분: 백엔드가 보내주는 'items' 배열을 찾도록 변경
-      // axiosClient가 이미 response.data.data를 반환하므로 data.items가 존재함
-      const couponsData = data.items || data.data?.items || [];
-      
+      const res = await adminCouponApi.getCoupons();
+      // 백엔드 응답에서 items 배열 추출
+      const couponsData = res.items || res.data?.items || [];
       setCoupons(couponsData);
     } catch (err) {
       console.error(err);
@@ -35,13 +31,13 @@ const AdminCouponListPage = ({ readOnly = false }) => {
   };
 
   const handleDelete = async (couponId) => {
-    if (!confirm("정말 삭제(비활성화) 하시겠습니까?")) return;
+    if (!confirm("정말 이 쿠폰을 비활성화(삭제) 하시겠습니까?")) return;
     try {
       await adminCouponApi.deactivateCoupon(couponId);
       alert("쿠폰이 비활성화되었습니다.");
       fetchCoupons(); // 목록 새로고침
     } catch (err) {
-      alert("삭제에 실패했습니다.");
+      alert(err.message || "삭제에 실패했습니다.");
     }
   };
 
