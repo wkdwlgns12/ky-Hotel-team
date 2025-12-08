@@ -16,16 +16,11 @@ import AdminUserListPage from "../pages/admin/AdminUserListPage";
 import AdminUserDetailPage from "../pages/admin/AdminUserDetailPage";
 import AdminMyProfilePage from "../pages/admin/AdminMyProfilePage";
 import AdminSettingsPage from "../pages/admin/AdminSettingsPage";
-import AuthCallback from "../pages/auth/AuthCallback";
 
 const adminRoutes = [
   {
     path: "/auth/login",
     element: <AdminLoginPage />,
-  },
-  {
-    path: "/auth/callback",
-    element: <AuthCallback />,
   },
   {
     path: "/admin/login",
