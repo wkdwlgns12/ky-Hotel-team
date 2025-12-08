@@ -66,7 +66,8 @@ const AdminChartArea = ({ data }) => {
         paddingTop: '20px'
       }}>
         {labels.map((label, idx) => {
-          constHZ = revenue[idx] || 0;
+          // [수정] 오타 수정: constHZ -> const val
+          const val = revenue[idx] || 0;
           const heightPercentage = (val / maxRevenue) * 100;
           
           return (
