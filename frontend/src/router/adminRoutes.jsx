@@ -12,16 +12,11 @@ import AdminReviewDetailPage from "../pages/admin/AdminReviewDetailPage";
 import AdminCouponListPage from "../pages/admin/AdminCouponListPage";
 import AdminCouponCreatePage from "../pages/admin/AdminCouponCreatePage";
 import AdminCouponEditPage from "../pages/admin/AdminCouponEditPage";
-import AuthCallback from "../pages/auth/AuthCallback";
 
 const adminRoutes = [
   {
     path: "/auth/login",
     element: <AdminLoginPage />,
-  },
-  {
-    path: "/auth/callback",
-    element: <AuthCallback />,
   },
   {
     path: "/admin/login",
@@ -48,7 +43,6 @@ const adminRoutes = [
           { path: "coupons", element: <AdminCouponListPage /> },
           { path: "coupons/new", element: <AdminCouponCreatePage /> },
           { path: "coupons/:couponId/edit", element: <AdminCouponEditPage /> },
-          // Users, Settings, Profile 라우트 제거 (백엔드 미구현)
         ],
       },
     ],
