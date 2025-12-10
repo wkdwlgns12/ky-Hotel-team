@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useAdminAuth } from "../../hooks/useAdminAuth";
+import { useAuth } from "../../hooks/useAuth";
 
 const AdminHeader = () => {
   const navigate = useNavigate();
-  const { adminInfo, logout } = useAdminAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
       await logout();
-      navigate("/auth/login");
+      navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     }
@@ -21,7 +21,7 @@ const AdminHeader = () => {
           <h2>관리자 대시보드</h2>
         </div>
         <div className="header-right">
-          <span>{adminInfo?.name || "Admin"}</span>
+          <span>{user?.name || "Admin"}</span>
           <button onClick={handleLogout} className="btn btn-outline">
             로그아웃
           </button>

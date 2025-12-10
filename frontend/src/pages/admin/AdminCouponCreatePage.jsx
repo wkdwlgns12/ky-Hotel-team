@@ -1,59 +1,146 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminCouponForm from "../../components/admin/coupons/AdminCouponForm";
-import { adminCouponApi } from "../../api/adminCouponApi";
-import { adminUserApi } from "../../api/adminUserApi";
+import couponApi from "../../api/couponApi";
+import "./AdminCouponCreatePage.scss";
 
 const AdminCouponCreatePage = () => {
   const navigate = useNavigate();
-  const [owners, setOwners] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    name: "",
+    code: "",
+    discountAmount: "",
+    minOrderAmount: "",
+    validFrom: "",
+    validTo: "",
+    businessNumber: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // 컴포넌트 마운트 시 사업자 목록 조회 (쿠폰 발급 대상 선택용)
-  useEffect(() => {
-    const fetchOwners = async () => {
-      try {
-        setLoading(true);
-        // role='owner'인 유저만 가져옴
-        const res = await adminUserApi.getUsers({ role: "owner", limit: 100 });
-        setOwners(res.items || []);
-      } catch (err) {
-        console.error("사업자 목록 로드 실패:", err);
-        alert("사업자 목록을 불러올 수 없습니다.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchOwners();
-  }, []);
-
-  const handleSubmit = async (formData) => {
-    try {
-      // 폼 데이터 전송 (필드명: name, code, discountAmount, minOrderAmount, validFrom, validTo, ownerId)
-      await adminCouponApi.createCoupon(formData);
-      alert("쿠폰이 성공적으로 생성되었습니다.");
-      navigate("/admin/coupons");
-    } catch (err) {
-      alert(err.message || "생성에 실패했습니다.");
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCancel = () => {
-    navigate("/admin/coupons");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      await couponApi.createCoupon({
+        ...formData,
+        discountAmount: Number(formData.discountAmount),
+        minOrderAmount: Number(formData.minOrderAmount) || 0,
+        validFrom: new Date(formData.validFrom),
+        validTo: new Date(formData.validTo),
+      });
+      alert("쿠폰이 생성되었습니다.");
+      navigate("/admin/coupons");
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || "쿠폰 생성에 실패했습니다.";
+      setError(errorMessage);
+      console.error("쿠폰 생성 에러:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="admin-coupon-create-page">
-      <div className="page-header">
-        <h1>쿠폰 생성</h1>
-      </div>
-      
-      {/* 조회한 owners 리스트를 폼 컴포넌트에 전달 */}
-      <AdminCouponForm
-        owners={owners}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-      />
+      <h1>쿠폰 생성</h1>
+
+      {error && <div className="error-message">{error}</div>}
+
+      <form onSubmit={handleSubmit} className="coupon-form">
+        <div className="form-group">
+          <label>쿠폰명</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>쿠폰 코드</label>
+          <input
+            type="text"
+            name="code"
+            value={formData.code}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>할인액 (원)</label>
+          <input
+            type="number"
+            name="discountAmount"
+            value={formData.discountAmount}
+            onChange={handleChange}
+            required
+            min="0"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>최소 주문 금액 (원)</label>
+          <input
+            type="number"
+            name="minOrderAmount"
+            value={formData.minOrderAmount}
+            onChange={handleChange}
+            min="0"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>유효 시작일</label>
+          <input
+            type="datetime-local"
+            name="validFrom"
+            value={formData.validFrom}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>유효 종료일</label>
+          <input
+            type="datetime-local"
+            name="validTo"
+            value={formData.validTo}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>사업자 번호</label>
+          <input
+            type="text"
+            name="businessNumber"
+            value={formData.businessNumber}
+            onChange={handleChange}
+            required
+            placeholder="사업자 번호를 입력하세요"
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>
+            취소
+          </button>
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "생성 중..." : "생성"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

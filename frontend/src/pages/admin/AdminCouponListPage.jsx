@@ -1,65 +1,136 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminCouponTable from "../../components/admin/coupons/AdminCouponTable";
-import { adminCouponApi } from "../../api/adminCouponApi";
+import couponApi from "../../api/couponApi";
 import Loader from "../../components/common/Loader";
-import ErrorMessage from "../../components/common/ErrorMessage";
+import Pagination from "../../components/common/Pagination";
+import StatusBadge from "../../components/common/StatusBadge";
+import "./AdminCouponListPage.scss";
 
-const AdminCouponListPage = ({ readOnly = false }) => {
+const AdminCouponListPage = () => {
   const navigate = useNavigate();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
 
   useEffect(() => {
-    fetchCoupons();
-  }, []);
+    loadCoupons();
+  }, [pagination.page]);
 
-  const fetchCoupons = async () => {
+  const loadCoupons = async () => {
     try {
       setLoading(true);
-      const res = await adminCouponApi.getCoupons();
-      // 백엔드 응답에서 items 배열 추출
-      const couponsData = res.items || res.data?.items || [];
-      setCoupons(couponsData);
+      const response = await couponApi.getCouponsForAdmin({
+        page: pagination.page,
+        limit: pagination.limit,
+      });
+      setCoupons(response.data.items || []);
+      setPagination({
+        ...pagination,
+        total: response.data.total || 0,
+        totalPages: response.data.totalPages || 0,
+      });
     } catch (err) {
-      console.error(err);
-      setError("쿠폰 목록을 불러오는데 실패했습니다.");
+      setError(err.response?.data?.message || "쿠폰 목록을 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (couponId) => {
-    if (!confirm("정말 이 쿠폰을 비활성화(삭제) 하시겠습니까?")) return;
+  const handleDeactivate = async (couponId) => {
+    if (!window.confirm("이 쿠폰을 비활성화하시겠습니까?")) return;
+
     try {
-      await adminCouponApi.deactivateCoupon(couponId);
+      await couponApi.deactivateCoupon(couponId);
       alert("쿠폰이 비활성화되었습니다.");
-      fetchCoupons(); // 목록 새로고침
+      loadCoupons();
     } catch (err) {
-      alert(err.message || "삭제에 실패했습니다.");
+      alert(err.response?.data?.message || "처리에 실패했습니다.");
     }
   };
 
-  if (loading) return <Loader fullScreen />;
-  if (error) return <ErrorMessage message={error} onRetry={fetchCoupons} />;
+  if (loading) return <Loader />;
 
   return (
     <div className="admin-coupon-list-page">
       <div className="page-header">
-        <h1>🎫 쿠폰 관리 {readOnly && "(조회 전용)"}</h1>
-        {/* 읽기 전용이 아닐 때만 생성 버튼 표시 */}
-        {!readOnly && (
-          <button
-            onClick={() => navigate("/admin/coupons/new")}
-            className="btn btn-primary"
-          >
-            + 쿠폰 생성
-          </button>
-        )}
+        <h1>쿠폰 관리</h1>
+        <button className="btn btn-primary" onClick={() => navigate("/admin/coupons/new")}>
+          쿠폰 생성
+        </button>
       </div>
 
-      <AdminCouponTable coupons={coupons} onDelete={handleDelete} readOnly={readOnly} />
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="coupon-table">
+        <table>
+          <thead>
+            <tr>
+              <th>쿠폰명</th>
+              <th>코드</th>
+              <th>할인액</th>
+              <th>최소주문금액</th>
+              <th>유효기간</th>
+              <th>사업자</th>
+              <th>상태</th>
+              <th>액션</th>
+            </tr>
+          </thead>
+          <tbody>
+            {coupons.length === 0 ? (
+              <tr>
+                <td colSpan="8" style={{ textAlign: "center", padding: "40px" }}>
+                  쿠폰이 없습니다.
+                </td>
+              </tr>
+            ) : (
+              coupons.map((coupon) => (
+                <tr key={coupon.id || coupon._id}>
+                  <td>{coupon.name}</td>
+                  <td>{coupon.code}</td>
+                  <td>{coupon.discountAmount?.toLocaleString()}원</td>
+                  <td>{coupon.minOrderAmount?.toLocaleString()}원</td>
+                  <td>
+                    {new Date(coupon.validFrom).toLocaleDateString()} ~{" "}
+                    {new Date(coupon.validTo).toLocaleDateString()}
+                  </td>
+                  <td>{coupon.owner?.name || "-"}</td>
+                  <td>
+                    {coupon.isActive ? (
+                      <span className="status-badge status-approved">활성</span>
+                    ) : (
+                      <span className="status-badge status-rejected">비활성</span>
+                    )}
+                  </td>
+                  <td>
+                    {coupon.isActive && (
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleDeactivate(coupon.id || coupon._id)}
+                      >
+                        비활성화
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {pagination.totalPages > 1 && (
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.totalPages}
+          onPageChange={(page) => setPagination({ ...pagination, page })}
+        />
+      )}
     </div>
   );
 };

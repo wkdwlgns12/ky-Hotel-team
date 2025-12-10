@@ -8,11 +8,13 @@ const AdminBreadcrumb = () => {
     admin: "관리자",
     dashboard: "대시보드",
     hotels: "호텔 관리",
+    bookings: "예약 관리",
     users: "회원 관리",
     reviews: "리뷰 관리",
+    coupons: "쿠폰 관리",
     settings: "설정",
     me: "내 정보",
-    new: "등록",
+    new: "새로 만들기",
     edit: "수정",
   };
 

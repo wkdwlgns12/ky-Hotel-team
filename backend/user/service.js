@@ -39,7 +39,7 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
     throw err;
   }
 
-  const isMatch = await user.matchPassword(currentPassword);
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
   if (!isMatch) {
     const err = new Error("INVALID_CURRENT_PASSWORD");
     err.statusCode = 400;

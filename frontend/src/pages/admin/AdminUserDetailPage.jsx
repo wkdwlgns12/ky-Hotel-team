@@ -19,15 +19,8 @@ const AdminUserDetailPage = () => {
   const fetchUser = async () => {
     try {
       setLoading(true);
-      // 목록에서 해당 사용자 찾기
-      const data = await adminUserApi.getUsers();
-      const users = data.data?.users || data.users || [];
-      const foundUser = users.find(u => u.id === userId || u._id === userId);
-      if (foundUser) {
-        setUser(foundUser);
-      } else {
-        setError("사용자를 찾을 수 없습니다.");
-      }
+      const data = await adminUserApi.getUserById(userId);
+      setUser(data);
     } catch (err) {
       setError(err.message || "데이터를 불러오는데 실패했습니다.");
     } finally {

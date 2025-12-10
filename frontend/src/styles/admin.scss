@@ -1,78 +1,21 @@
 @use "./variables.scss" as *;
 
-// 비즈니스 카드 스타일 믹스인 (호텔, 차트 등 다른 카드에 사용)
-@mixin business-card {
-  background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
+// 관리자 레이아웃
 .admin-layout {
   display: flex;
   min-height: 100vh;
   width: 100%;
-  background-color: #f8fafc;
 
   .admin-sidebar {
     width: 260px;
-    background: #1e293b;
-    color: #e2e8f0;
+    background: $bg-dark;
+    color: $text-white;
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
-
-    .sidebar-logo {
-      padding: 2rem 1.5rem;
-      background: #0f172a;
-      
-      h2 { 
-        color: #ffffff; 
-        font-size: 1.5rem; 
-        font-weight: 800; 
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-      }
-    }
-
-    .sidebar-menu {
-      padding: 0 1rem;
-      list-style: none;
-      
-      li { margin-bottom: 0.5rem; }
-
-      a {
-        color: #94a3b8;
-        padding: 0.8rem 1rem;
-        border-radius: 8px;
-        font-weight: 500;
-        text-decoration: none; // 밑줄 제거
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: all 0.2s;
-        
-        &:hover { 
-            color: #ffffff; 
-            background: rgba(255,255,255,0.08); 
-        }
-        
-        &.active {
-          background: #3b82f6;
-          color: #ffffff;
-          font-weight: 600;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-        }
-      }
-    }
   }
 
   .admin-main {
@@ -84,69 +27,107 @@
   }
 
   .admin-header {
-    background: #ffffff;
-    border-bottom: 1px solid #e2e8f0;
-    padding: 1rem 2rem;
+    background: $bg-primary;
+    border-bottom: 1px solid $border-color;
+    padding: $spacing-md $spacing-xl;
     position: sticky;
     top: 0;
     z-index: 900;
-    
-    .admin-header-inner {
-        display: flex;
-        justify-content: space-between; // 좌우 정렬
-        align-items: center;
-        width: 100%;
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            span { font-weight: 600; color: #334155; }
-        }
-    }
   }
 
   .admin-content {
     flex: 1;
-    padding: 2rem;
-    max-width: 1600px;
-    width: 100%;
-    margin: 0 auto;
+    padding: $spacing-xl;
   }
 }
 
-// 공통 카드 (차트, 리스트 등)
-.card {
-  @include business-card;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+// 관리자 헤더
+.admin-header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+  }
 }
 
-// ★ 대시보드 통계 카드 (기존 스타일 복구) ★
-.stats-grid {
+// 관리자 사이드바
+.admin-sidebar-inner {
+  padding: $spacing-lg;
+
+  .sidebar-logo {
+    margin-bottom: $spacing-xl;
+    padding-bottom: $spacing-lg;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    h2 {
+      font-size: $font-size-xl;
+      font-weight: 700;
+    }
+  }
+
+  .sidebar-menu {
+    list-style: none;
+
+    li {
+      margin-bottom: $spacing-xs;
+    }
+
+    a {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      padding: $spacing-sm $spacing-md;
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      border-radius: $border-radius;
+      transition: $transition-base;
+      font-size: $font-size-sm;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: $text-white;
+      }
+
+      &.active {
+        background: $primary-color;
+        color: $text-white;
+      }
+    }
+  }
+}
+
+// 대시보드 카드
+.stats-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
 
   .stat-card {
     background: $bg-primary;
-    border-radius: 8px; // 기존 8px
-    padding: 1.5rem;
+    border-radius: $border-radius;
+    padding: $spacing-lg;
     border: 1px solid $border-color;
     box-shadow: $shadow-sm;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 
     .stat-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 1rem;
+      margin-bottom: $spacing-md;
 
       .stat-title {
-        font-size: 0.875rem; // 기존 폰트 사이즈
+        font-size: $font-size-sm;
         color: $text-secondary;
         font-weight: 500;
       }
@@ -154,116 +135,131 @@
       .stat-icon {
         width: 40px;
         height: 40px;
-        border-radius: 8px;
+        border-radius: $border-radius;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
+        font-size: $font-size-xl;
       }
     }
 
     .stat-value {
-      font-size: 1.5rem; // 기존 크기
+      font-size: $font-size-3xl;
       font-weight: 700;
       color: $text-primary;
-      margin-bottom: 0.25rem;
+      margin-bottom: $spacing-xs;
     }
 
     .stat-change {
-      font-size: 0.75rem;
+      font-size: $font-size-xs;
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: $spacing-xs;
 
-      &.positive { color: $success-color; }
-      &.negative { color: $danger-color; }
-    }
-  }
-}
+      &.positive {
+        color: $success-color;
+      }
 
-// 호텔 리스트 그리드
-.hotels-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-
-  .hotel-card {
-    @include business-card;
-    overflow: hidden;
-    padding: 0;
-
-    .hotel-image {
-      height: 200px;
-      background: #e2e8f0;
-      position: relative;
-      img { width: 100%; height: 100%; object-fit: cover; }
-      .hotel-status { position: absolute; top: 12px; right: 12px; }
-    }
-
-    .hotel-content {
-      padding: 1.5rem;
-      .hotel-name { font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem; color: #1e293b; }
-      .hotel-address { font-size: 0.9rem; color: #64748b; margin-bottom: 1rem; display: flex; align-items: center; gap: 4px; }
-      
-      .hotel-actions {
-        display: flex; gap: 10px; margin-top: 1.5rem;
-        button { flex: 1; justify-content: center; }
+      &.negative {
+        color: $danger-color;
       }
     }
   }
 }
 
-// 버튼 스타일
-.btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: 0.2s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+// 필터
+.filter-bar {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
 
-    &-primary { background: #3b82f6; color: white; &:hover { background: #2563eb; } }
-    &-outline { background: white; border: 1px solid #cbd5e1; color: #475569; &:hover { background: #f8fafc; border-color: #3b82f6; color: #3b82f6; } }
-    
-    // 작은 버튼들
-    &-success-sm { background: #ecfdf5; color: #059669; border: 1px solid #d1fae5; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; &:hover{ background: #d1fae5; } }
-    &-warning-sm { background: #fffbeb; color: #d97706; border: 1px solid #fef3c7; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; &:hover{ background: #fef3c7; } }
-    &-danger-sm { background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; &:hover{ background: #fee2e2; } }
+  .filter-group {
+    display: flex;
+    gap: $spacing-sm;
+    align-items: center;
+
+    label {
+      font-size: $font-size-sm;
+      font-weight: 500;
+      color: $text-primary;
+    }
+
+    input,
+    select {
+      padding: $spacing-sm $spacing-md;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      font-size: $font-size-sm;
+    }
+  }
 }
 
-// 뱃지 스타일
+// 뱃지
 .badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    
-    &-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; } // 초록
-    &-inactive { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; } // 빨강
-    
-    &-success { background: #dcfce7; color: #15803d; }
-    &-warning { background: #fef9c3; color: #854d0e; }
-    &-danger { background: #fee2e2; color: #b91c1c; }
-    &-secondary { background: #f1f5f9; color: #475569; }
-    &-info { background: #e0f2fe; color: #075985; }
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: 12px;
+  font-size: $font-size-xs;
+  font-weight: 600;
+
+  &.badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: $success-color;
+  }
+
+  &.badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: $danger-color;
+  }
+
+  &.badge-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: $warning-color;
+  }
+
+  &.badge-info {
+    background: rgba(6, 182, 212, 0.1);
+    color: $info-color;
+  }
+
+  &.badge-secondary {
+    background: rgba(100, 116, 139, 0.1);
+    color: $secondary-color;
+  }
 }
 
-// 테이블
-.admin-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    th { text-align: left; padding: 1rem; background: #f8fafc; color: #64748b; font-weight: 600; border-bottom: 1px solid #e2e8f0; }
-    td { padding: 1rem; border-bottom: 1px solid #f1f5f9; color: #334155; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
-}
+// 페이지네이션
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-top: $spacing-xl;
 
-@media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+  button {
+    padding: $spacing-sm $spacing-md;
+    border: 1px solid $border-color;
+    background: $bg-primary;
+    color: $text-primary;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: $transition-base;
+    font-size: $font-size-sm;
+
+    &:hover:not(:disabled) {
+      background: $bg-secondary;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.active {
+      background: $primary-color;
+      color: $text-white;
+      border-color: $primary-color;
+    }
+  }
+}

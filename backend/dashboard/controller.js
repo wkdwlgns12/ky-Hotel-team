@@ -21,7 +21,7 @@ export const getAdminDashboard = async (req, res) => {
 // ⬇⬇ dashboard/controller.js 맨 아래에 이 블럭 통째로 추가 ⬇⬇
 export const getOwnerDashboard = async (req, res) => {
   try {
-    const ownerId = req.user.id; // 토큰에서 온 유저 id (owner)
+    const ownerId = req.user.id || req.user._id; // 토큰에서 온 유저 id (owner)
 
     const data = await getOwnerDashboardSummary(ownerId);
 

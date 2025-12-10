@@ -57,7 +57,7 @@ export const getReservationsForOwner = async (req, res) => {
       page = 1,
       limit = 20,
     } = req.query;
-    const ownerId = req.user.id; // 토큰에서 가져온 owner id
+    const ownerId = req.user.id || req.user._id; // 토큰에서 가져온 owner id
 
     const data = await getOwnerReservations({
       ownerId,

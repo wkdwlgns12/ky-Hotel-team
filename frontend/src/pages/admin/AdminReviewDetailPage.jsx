@@ -19,15 +19,8 @@ const AdminReviewDetailPage = () => {
   const fetchReview = async () => {
     try {
       setLoading(true);
-      // 목록에서 해당 리뷰 찾기
-      const data = await adminReviewApi.getReportedReviews();
-      const reviews = data.data?.reviews || data.reviews || [];
-      const foundReview = reviews.find(r => r.id === reviewId || r._id === reviewId);
-      if (foundReview) {
-        setReview(foundReview);
-      } else {
-        setError("리뷰를 찾을 수 없습니다.");
-      }
+      const data = await adminReviewApi.getReviewById(reviewId);
+      setReview(data);
     } catch (err) {
       setError(err.message || "데이터를 불러오는데 실패했습니다.");
     } finally {

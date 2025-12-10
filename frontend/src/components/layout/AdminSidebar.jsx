@@ -1,36 +1,38 @@
 import { NavLink } from "react-router-dom";
 
 const AdminSidebar = () => {
-  const menus = [
-    { name: "대시보드", path: "/admin/dashboard", icon: "📊" },
-    { name: "호텔 승인 관리", path: "/admin/hotels", icon: "🏨" },
-    { name: "회원 관리", path: "/admin/users", icon: "👥" },
-    { name: "리뷰 관리", path: "/admin/reviews", icon: "⭐" },
-    { name: "쿠폰 관리", path: "/admin/coupons", icon: "🎫" },
-    { name: "시스템 설정", path: "/admin/settings", icon: "⚙️" },
-    { name: "내 정보", path: "/admin/me", icon: "👤" },
+  const menuItems = [
+    { path: "/admin/dashboard", label: "대시보드", icon: "📊" },
+    { path: "/admin/hotels", label: "호텔 관리", icon: "🏨" },
+    { path: "/admin/users", label: "회원 관리", icon: "👥" },
+    { path: "/admin/reviews", label: "리뷰 관리", icon: "⭐" },
+    { path: "/admin/coupons", label: "쿠폰 관리", icon: "🎫" },
+    { path: "/admin/settings", label: "설정", icon: "⚙️" },
+    { path: "/admin/me", label: "내 정보", icon: "👤" },
   ];
 
   return (
     <aside className="admin-sidebar">
-      <div className="sidebar-logo">
-        <h2>Admin Panel</h2>
+      <div className="admin-sidebar-inner">
+        <div className="sidebar-logo">
+          <h2>Hotel Admin</h2>
+        </div>
+        <nav>
+          <ul className="sidebar-menu">
+            {menuItems.map((item) => (
+              <li key={item.path}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) => (isActive ? "active" : "")}
+                >
+                  <span>{item.icon}</span>
+                  <span>{item.label}</span>
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
-      <nav>
-        <ul className="sidebar-menu">
-          {menus.map((menu) => (
-            <li key={menu.path}>
-              <NavLink
-                to={menu.path}
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                <span>{menu.icon}</span>
-                {menu.name}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </aside>
   );
 };
