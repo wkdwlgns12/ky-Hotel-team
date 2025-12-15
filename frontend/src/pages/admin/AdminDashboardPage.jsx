@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import dashboardApi from "../../api/dashboardApi";
 import Loader from "../../components/common/Loader";
+import AdminChartArea from "../../components/admin/dashboard/AdminChartArea";
 import "./AdminDashboardPage.scss";
 
 const AdminDashboardPage = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [revenueTrend, setRevenueTrend] = useState([]);
+  const [trendType, setTrendType] = useState("day"); // day | month | year
 
   useEffect(() => {
     loadDashboard();
   }, []);
+
+  useEffect(() => {
+    loadRevenueTrend(trendType);
+  }, [trendType]);
 
   const loadDashboard = async () => {
     try {
@@ -21,6 +28,15 @@ const AdminDashboardPage = () => {
       setError(err.response?.data?.message || "대시보드 데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRevenueTrend = async (type) => {
+    try {
+      const response = await dashboardApi.getAdminRevenueTrend(type);
+      setRevenueTrend(response.data || []);
+    } catch (err) {
+      console.error("매출 추세 로드 실패:", err);
     }
   };
 
@@ -73,6 +89,14 @@ const AdminDashboardPage = () => {
           </div>
         </div>
       </div>
+
+      <AdminChartArea
+        summaryRevenue={data.revenue}
+        reservations={data.reservations}
+        trend={revenueTrend}
+        trendType={trendType}
+        onTrendTypeChange={setTrendType}
+      />
     </div>
   );
 };

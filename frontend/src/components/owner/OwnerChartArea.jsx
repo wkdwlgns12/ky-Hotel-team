@@ -1,7 +1,7 @@
 import React from "react";
 
-// 간단한 막대/라인 차트: 일/월/년 단위 매출 추세 + 요약 지표
-const AdminChartArea = ({
+// 사업자용 매출 차트: 관리자 차트와 동일한 구조이되 타이틀만 사업자 관점으로 표시
+const OwnerChartArea = ({
   summaryRevenue,
   reservations,
   trend,
@@ -14,7 +14,6 @@ const AdminChartArea = ({
 
   const avgPerReservation = totalCount ? totalRevenue / totalCount : 0;
 
-  // 막대 높이 계산용 최대값
   const maxValue = Math.max(totalRevenue, avgPerReservation, completedCount || 1);
 
   const toHeight = (value) =>
@@ -44,7 +43,6 @@ const AdminChartArea = ({
     },
   ];
 
-  // 트렌드 축 값 계산
   const maxTrendValue =
     trend && trend.length
       ? Math.max(...trend.map((d) => d.total || 0))
@@ -57,15 +55,14 @@ const AdminChartArea = ({
     trendType === "year" ? "연도별" : trendType === "month" ? "월별" : "일별";
 
   return (
-    <div className="admin-chart-area">
+    <div className="owner-chart-area admin-chart-area">
       <div className="chart-header">
-        <h2>매출 통계</h2>
+        <h2>내 호텔 매출 통계</h2>
         <span className="chart-subtitle">
-          완료된 예약을 기준으로 한 매출 지표입니다.
+          내 호텔에서 발생한 완료된 예약 기준 매출입니다.
         </span>
       </div>
 
-      {/* 요약 막대 차트 */}
       <div className="chart-body summary">
         {summaryBars.map((bar) => (
           <div key={bar.label} className="chart-bar-wrapper">
@@ -85,12 +82,11 @@ const AdminChartArea = ({
         ))}
       </div>
 
-      {/* 추세 차트 */}
       <div className="chart-trend-header">
         <div className="chart-trend-title">
           <h3>{typeLabel} 매출 추세</h3>
           <span className="chart-subtitle">
-            상단 버튼으로 기간 단위를 변경해 확인할 수 있습니다.
+            버튼을 눌러 일/월/연 단위로 매출 흐름을 비교해보세요.
           </span>
         </div>
         <div className="chart-trend-tabs">
@@ -146,4 +142,6 @@ const AdminChartArea = ({
   );
 };
 
-export default AdminChartArea;
+export default OwnerChartArea;
+
+

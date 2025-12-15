@@ -29,13 +29,19 @@ const OwnerHotelDetailPage = () => {
     try {
       setLoading(true);
       const hotelsResponse = await hotelApi.getMyHotels();
-      const foundHotel = hotelsResponse.data.items?.find(
-        (h) => (h.id || h._id) === hotelId
+      const hotelData = hotelsResponse.data || hotelsResponse; // successResponse(data) 구조 대응
+      const foundHotel = hotelData.items?.find(
+        (h) => (h.id || h._id)?.toString() === hotelId
       );
-      setHotel(foundHotel);
+      setHotel(foundHotel || null);
 
-      const roomsResponse = await roomApi.getRoomsByHotel(hotelId);
-      setRooms(roomsResponse.data || []);
+      if (foundHotel) {
+        const roomsResponse = await roomApi.getRoomsByHotel(hotelId);
+        const roomsData = roomsResponse.data || roomsResponse;
+        setRooms(roomsData || []);
+      } else {
+        setRooms([]);
+      }
     } catch (err) {
       alert(err.response?.data?.message || "데이터를 불러오는데 실패했습니다.");
     } finally {
