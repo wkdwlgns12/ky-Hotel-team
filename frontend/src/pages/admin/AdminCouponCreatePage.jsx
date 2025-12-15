@@ -34,6 +34,7 @@ const AdminCouponCreatePage = () => {
         minOrderAmount: Number(formData.minOrderAmount) || 0,
         validFrom: new Date(formData.validFrom),
         validTo: new Date(formData.validTo),
+        // businessNumber 가 비어 있으면 전역 쿠폰으로 생성됨
       });
       alert("쿠폰이 생성되었습니다.");
       navigate("/admin/coupons");
@@ -73,6 +74,20 @@ const AdminCouponCreatePage = () => {
             onChange={handleChange}
             required
           />
+        </div>
+
+        <div className="form-group">
+          <label>사업자 번호 (선택)</label>
+          <input
+            type="text"
+            name="businessNumber"
+            value={formData.businessNumber}
+            onChange={handleChange}
+            placeholder="특정 사업자에게만 쿠폰을 연결하려면 입력하세요"
+          />
+          <small className="helper-text">
+            비워두면 모든 사업자가 사용할 수 있는 전역 쿠폰으로 생성됩니다.
+          </small>
         </div>
 
         <div className="form-group">
@@ -117,18 +132,6 @@ const AdminCouponCreatePage = () => {
             value={formData.validTo}
             onChange={handleChange}
             required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>사업자 번호</label>
-          <input
-            type="text"
-            name="businessNumber"
-            value={formData.businessNumber}
-            onChange={handleChange}
-            required
-            placeholder="사업자 번호를 입력하세요"
           />
         </div>
 

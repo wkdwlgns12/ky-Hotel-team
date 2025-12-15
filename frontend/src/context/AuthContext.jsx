@@ -19,12 +19,18 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
         return;
       }
-      
+
       const response = await authApi.getMe();
       // 백엔드 응답: { success: true, message: "...", data: { user: {...} } }
       if (response?.success && response?.data) {
-        // data.user가 있으면 user 사용, 없으면 data 자체가 user 객체일 수 있음
-        setUser(response.data.user || response.data);
+        const currentUser = response.data.user || response.data;
+        // 차단된 계정이면 즉시 로그아웃 처리
+        if (currentUser.isBlocked) {
+          localStorage.removeItem("token");
+          setUser(null);
+        } else {
+          setUser(currentUser);
+        }
       }
     } catch (error) {
       // 401 에러는 정상적인 경우(토큰 없음/만료)이므로 조용히 처리
@@ -40,11 +46,21 @@ export const AuthProvider = ({ children }) => {
     const response = await authApi.login(credentials);
     // 백엔드 응답: { success: true, message: "...", data: { user: {...}, token: "..." } }
     if (response?.success && response?.data) {
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+      const data = response.data;
+      const loggedInUser = data.user || data;
+
+      // 차단된 계정이면 토큰 저장/로그인 처리 없이 에러 발생
+      if (loggedInUser.isBlocked) {
+        localStorage.removeItem("token");
+        setUser(null);
+        throw new Error("차단된 계정입니다. 관리자에게 문의해주세요.");
       }
-      setUser(response.data.user || response.data);
-      return response.data;
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+      setUser(loggedInUser);
+      return data;
     }
     throw new Error(response?.message || "로그인에 실패했습니다.");
   };

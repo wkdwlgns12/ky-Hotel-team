@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import hotelApi from "../../api/hotelApi";
 import Loader from "../../components/common/Loader";
 import Pagination from "../../components/common/Pagination";
@@ -7,7 +6,6 @@ import StatusBadge from "../../components/common/StatusBadge";
 import "./AdminHotelListPage.scss";
 
 const AdminHotelListPage = () => {
-  const navigate = useNavigate();
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -106,7 +104,8 @@ const AdminHotelListPage = () => {
               <th>호텔명</th>
               <th>도시</th>
               <th>주소</th>
-              <th>사업자</th>
+              <th>사업자명</th>
+              <th>사업자번호</th>
               <th>상태</th>
               <th>등록일</th>
               <th>액션</th>
@@ -125,9 +124,8 @@ const AdminHotelListPage = () => {
                   <td>{hotel.name}</td>
                   <td>{hotel.city}</td>
                   <td>{hotel.address || "-"}</td>
-                  <td>
-                    {hotel.owner?.name || "-"} ({hotel.owner?.email || "-"})
-                  </td>
+                  <td>{hotel.owner?.name || "-"}</td>
+                  <td>{hotel.owner?.businessNumber || "-"}</td>
                   <td>
                     <StatusBadge status={hotel.status} />
                   </td>

@@ -15,20 +15,22 @@ const AdminBookingListPage = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchBookings();
+    fetchBookings(currentPage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  const fetchBookings = async () => {
+  const fetchBookings = async (page = 1) => {
     try {
       setLoading(true);
       const data = await adminBookingApi.getBookings({
         ...filters,
-        page: currentPage,
+        page,
       });
-      setBookings(data.bookings || []);
+      setBookings(data.items || []);
       setTotalPages(data.totalPages || 1);
+      setError("");
     } catch (err) {
-      setError(err.message || "데이터를 불러오는데 실패했습니다.");
+      setError(err.response?.data?.message || err.message || "데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -40,32 +42,32 @@ const AdminBookingListPage = () => {
 
   const handleSearch = () => {
     setCurrentPage(1);
-    fetchBookings();
+    fetchBookings(1);
   };
 
   const handleStatusChange = async (bookingId, status) => {
     try {
       await adminBookingApi.updateBookingStatus(bookingId, status);
-      fetchBookings();
+      fetchBookings(currentPage);
     } catch (err) {
-      alert(err.message || "상태 변경에 실패했습니다.");
+      alert(err.response?.data?.message || err.message || "상태 변경에 실패했습니다.");
     }
   };
 
   const handleCancel = async (bookingId) => {
-    const reason = prompt("취소 사유를 입력하세요:");
-    if (!reason) return;
+    const confirmed = window.confirm("이 예약을 취소하시겠습니까?");
+    if (!confirmed) return;
 
     try {
-      await adminBookingApi.cancelBooking(bookingId, reason);
-      fetchBookings();
+      await adminBookingApi.cancelBooking(bookingId);
+      fetchBookings(currentPage);
     } catch (err) {
-      alert(err.message || "취소에 실패했습니다.");
+      alert(err.response?.data?.message || err.message || "취소에 실패했습니다.");
     }
   };
 
   if (loading) return <Loader fullScreen />;
-  if (error) return <ErrorMessage message={error} onRetry={fetchBookings} />;
+  if (error) return <ErrorMessage message={error} onRetry={() => fetchBookings(currentPage)} />;
 
   return (
     <div className="admin-booking-list-page">
@@ -88,7 +90,7 @@ const AdminBookingListPage = () => {
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        onPageChange={(page) => setCurrentPage(page)}
       />
     </div>
   );
