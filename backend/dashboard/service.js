@@ -4,7 +4,7 @@ import Hotel from "../hotel/model.js";
 import Reservation from "../reservation/model.js";
 import User from "../user/model.js"; // user 모델 경로가 다르면 여기를 맞춰줘야 함
 import Room from "../room/model.js";
-// 지난 N일 매출 계산
+// 지난 N일 매출 계산 (요약용)
 const getRevenueLastDays = async (days = 30) => {
   const since = new Date();
   since.setDate(since.getDate() - days);
@@ -33,6 +33,55 @@ const getRevenueLastDays = async (days = 30) => {
     total: result[0].total,
     count: result[0].count,
   };
+};
+
+// 매출 추세 데이터 (일/월/년 단위 그룹)
+// ownerHotelIds 를 넘기면 해당 호텔들에 대한 매출만 집계 (사업자용)
+export const getRevenueTrend = async (granularity = "day", ownerHotelIds = null) => {
+  // granularity: 'day' | 'month' | 'year'
+  let dateFormat;
+  let since = new Date();
+
+  if (granularity === "year") {
+    since.setFullYear(since.getFullYear() - 5); // 최근 5년
+    dateFormat = { $dateToString: { format: "%Y", date: "$updatedAt" } };
+  } else if (granularity === "month") {
+    since.setMonth(since.getMonth() - 11); // 최근 12개월
+    dateFormat = { $dateToString: { format: "%Y-%m", date: "$updatedAt" } };
+  } else {
+    // day
+    since.setDate(since.getDate() - 29); // 최근 30일
+    dateFormat = { $dateToString: { format: "%Y-%m-%d", date: "$updatedAt" } };
+  }
+
+  const match = {
+    status: "completed",
+    updatedAt: { $gte: since },
+  };
+
+  if (ownerHotelIds && ownerHotelIds.length > 0) {
+    match.hotelId = { $in: ownerHotelIds };
+  }
+
+  const docs = await Reservation.aggregate([
+    {
+      $match: match,
+    },
+    {
+      $group: {
+        _id: dateFormat,
+        total: { $sum: "$totalPrice" },
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  return docs.map((d) => ({
+    label: d._id,
+    total: d.total,
+    count: d.count,
+  }));
 };
 
 export const getAdminDashboardSummary = async () => {
@@ -155,7 +204,7 @@ export const getOwnerDashboardSummary = async (ownerId) => {
     }),
   ]);
 
-  // 5) 최근 30일 매출 (completed 예약만)
+  // 5) 최근 30일 매출 (completed 예약만, day 단위 집계 중 마지막 값 사용)
   const since = new Date();
   since.setDate(since.getDate() - 30);
 

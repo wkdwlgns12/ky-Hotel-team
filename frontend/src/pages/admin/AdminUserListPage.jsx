@@ -69,6 +69,7 @@ const AdminUserListPage = () => {
             }}
           >
             <option value="">전체</option>
+            <option value="user">일반 회원</option>
             <option value="admin">관리자</option>
             <option value="owner">사업자</option>
           </select>
