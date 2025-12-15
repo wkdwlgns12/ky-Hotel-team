@@ -2,7 +2,8 @@
 
 import Hotel from "../hotel/model.js";
 import Reservation from "../reservation/model.js";
-import User from "../user/model.js"; // user 모델 경로가 다르면 여기를 맞춰줘야 함
+import User from "../user/model.js"; // owner/admin (owner_users 컬렉션)
+import GeneralUser from "../user/generalUserModel.js"; // 일반 회원(users 컬렉션)
 import Room from "../room/model.js";
 // 지난 N일 매출 계산 (요약용)
 const getRevenueLastDays = async (days = 30) => {
@@ -96,10 +97,16 @@ export const getAdminDashboardSummary = async () => {
   const cancelledReservations = await Reservation.countDocuments({ status: "cancelled" });
   const completedReservations = await Reservation.countDocuments({ status: "completed" });
 
-  const totalUsers = await User.countDocuments({});
-  const adminCount = await User.countDocuments({ role: "admin" });
-  const ownerCount = await User.countDocuments({ role: "owner" });
-  const normalUserCount = await User.countDocuments({ role: "user" }); // role 명이 다르면 여기만 수정
+  // 사용자 수: owner/admin 은 User(=owner_users), 일반 회원은 GeneralUser(=users)
+  const [totalOwnerAdmins, totalGeneralUsers, adminCount, ownerCount] =
+    await Promise.all([
+      User.countDocuments({}), // owner + admin
+      GeneralUser.countDocuments({ role: "user" }),
+      User.countDocuments({ role: "admin" }),
+      User.countDocuments({ role: "owner" }),
+    ]);
+  const totalUsers = totalOwnerAdmins + totalGeneralUsers;
+  const normalUserCount = totalGeneralUsers;
 
   const last30DaysRevenue = await getRevenueLastDays(30);
 

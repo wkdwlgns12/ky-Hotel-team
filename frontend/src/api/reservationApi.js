@@ -15,6 +15,11 @@ export const reservationApi = {
   updateReservationStatus: async (reservationId, status) => {
     return await axiosClient.patch(`/reservation/${reservationId}/status`, { status });
   },
+
+  // 예약 삭제
+  deleteReservation: async (reservationId) => {
+    return await axiosClient.delete(`/reservation/${reservationId}`);
+  },
 };
 
 export default reservationApi;

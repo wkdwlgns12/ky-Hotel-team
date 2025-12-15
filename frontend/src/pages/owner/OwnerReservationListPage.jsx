@@ -52,6 +52,18 @@ const OwnerReservationListPage = () => {
     }
   };
 
+  const handleDelete = async (reservationId) => {
+    if (!window.confirm("이 예약을 완전히 삭제하시겠습니까?")) return;
+
+    try {
+      await reservationApi.deleteReservation(reservationId);
+      alert("예약이 삭제되었습니다.");
+      loadReservations();
+    } catch (err) {
+      alert(err.response?.data?.message || "삭제에 실패했습니다.");
+    }
+  };
+
   if (loading) return <Loader />;
 
   return (
@@ -111,26 +123,34 @@ const OwnerReservationListPage = () => {
                     <StatusBadge status={reservation.status} />
                   </td>
                   <td>
-                    {reservation.status === "pending" && (
-                      <div className="action-buttons">
-                        <button
-                          className="btn btn-success"
-                          onClick={() =>
-                            handleStatusChange(reservation.id || reservation._id, "confirmed")
-                          }
-                        >
-                          확정
-                        </button>
-                        <button
-                          className="btn btn-danger"
-                          onClick={() =>
-                            handleStatusChange(reservation.id || reservation._id, "cancelled")
-                          }
-                        >
-                          취소
-                        </button>
-                      </div>
-                    )}
+                    <div className="action-buttons">
+                      {reservation.status === "pending" && (
+                        <>
+                          <button
+                            className="btn btn-success"
+                            onClick={() =>
+                              handleStatusChange(reservation.id || reservation._id, "confirmed")
+                            }
+                          >
+                            확정
+                          </button>
+                          <button
+                            className="btn btn-warning"
+                            onClick={() =>
+                              handleStatusChange(reservation.id || reservation._id, "cancelled")
+                            }
+                          >
+                            취소
+                          </button>
+                        </>
+                      )}
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => handleDelete(reservation.id || reservation._id)}
+                      >
+                        삭제
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))

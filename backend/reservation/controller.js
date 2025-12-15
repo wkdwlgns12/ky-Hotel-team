@@ -4,6 +4,7 @@ import {
   getAdminReservations,
   getOwnerReservations,
   updateReservationStatus,
+  deleteReservation,
 } from "./service.js";
 
 // 🔹 ADMIN: 전체 예약 조회
@@ -108,5 +109,24 @@ export const patchReservationStatus = async (req, res) => {
     return res
       .status(400)
       .json(errorResponse(err.message || "RESERVATION_STATUS_UPDATE_FAILED", 400));
+  }
+};
+
+// 🔹 ADMIN / OWNER: 예약 삭제
+export const deleteReservationController = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await deleteReservation(id);
+
+    return res
+      .status(200)
+      .json(successResponse(null, "RESERVATION_DELETED", 200));
+  } catch (err) {
+    console.error(err);
+    const status = err.statusCode || 400;
+    return res
+      .status(status)
+      .json(errorResponse(err.message || "RESERVATION_DELETE_FAILED", status));
   }
 };
