@@ -1,9 +1,30 @@
 // hotel/controller.js
 import * as hotelService from "./service.js";
+import Hotel from "./model.js";
 import { successResponse, errorResponse } from "../common/response.js";
 
+const parseArray = (v) => {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  if (typeof v === "string") {
+    try {
+      const parsed = JSON.parse(v);
+      return Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      return [v];
+    }
+  }
+  return [];
+};
+
+const parseRating = (v) => {
+  if (v === undefined || v === null || v === "") return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
 //
-// OWNER(사업자) 컨트롤러
+// OWNER (사업자)
 //
 
 // GET /api/hotel/owner
@@ -27,12 +48,28 @@ export const getMyHotels = async (req, res) => {
 export const createHotel = async (req, res) => {
   try {
     const ownerId = req.user.id || req.user._id;
-    const hotel = await hotelService.createHotel(ownerId, req.body);
+
+    // S3 업로드된 이미지 URL
+    const images = req.files?.map((file) => file.location) || [];
+
+    // ✅ 추가 파싱
+    const rating = parseRating(req.body.rating);
+    const freebies = parseArray(req.body.freebies);
+    const amenities = parseArray(req.body.amenities);
+
+    const hotel = await hotelService.createHotel(ownerId, {
+      ...req.body,
+      images,
+      rating,
+      freebies,
+      amenities,
+    });
 
     return res
       .status(201)
       .json(successResponse(hotel, "HOTEL_CREATED_PENDING", 201));
   } catch (err) {
+    console.error(err);
     return res
       .status(err.statusCode || 400)
       .json(errorResponse(err.message, err.statusCode || 400));
@@ -45,7 +82,19 @@ export const updateHotel = async (req, res) => {
     const ownerId = req.user.id || req.user._id;
     const { hotelId } = req.params;
 
-    const hotel = await hotelService.updateHotel(ownerId, hotelId, req.body);
+    const payload = { ...req.body };
+
+    // 새로 업로드된 이미지가 있으면 추가
+    if (req.files && req.files.length > 0) {
+      const newImages = req.files.map((file) => file.location);
+      payload.images = newImages; // 기존 이미지에 추가하려면 hotelService에서 처리
+    }
+
+    if ("rating" in req.body) payload.rating = parseRating(req.body.rating);
+    if ("freebies" in req.body) payload.freebies = parseArray(req.body.freebies);
+    if ("amenities" in req.body) payload.amenities = parseArray(req.body.amenities);
+
+    const hotel = await hotelService.updateHotel(ownerId, hotelId, payload);
 
     return res.status(200).json(successResponse(hotel, "HOTEL_UPDATED", 200));
   } catch (err) {
@@ -56,22 +105,15 @@ export const updateHotel = async (req, res) => {
 };
 
 //
-// ADMIN 컨트롤러
+// ADMIN
+//
 
-// GET /api/hotel/admin - 전체 호텔 목록 (상태 필터 가능)
+// GET /api/hotel/admin
 export const getAllHotels = async (req, res) => {
   try {
-    const {
-      status,
-      page = 1,
-      limit = 20,
-    } = req.query;
+    const { status, page = 1, limit = 20 } = req.query;
 
-    const data = await hotelService.getAllHotels({
-      status,
-      page,
-      limit,
-    });
+    const data = await hotelService.getAllHotels({ status, page, limit });
 
     return res
       .status(200)
@@ -83,18 +125,16 @@ export const getAllHotels = async (req, res) => {
   }
 };
 
-// GET /api/hotel/admin/pending - 승인 대기 호텔 목록 (하위 호환성)
+// GET /api/hotel/admin/pending
 export const getPendingHotels = async (req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 20,
-    } = req.query;
+    const { page = 1, limit = 20 } = req.query;
 
-    const hotels = await hotelService.getPendingHotels({ page, limit });
+    const data = await hotelService.getPendingHotels({ page, limit });
+
     return res
       .status(200)
-      .json(successResponse(hotels, "PENDING_HOTELS", 200));
+      .json(successResponse(data, "PENDING_HOTELS", 200));
   } catch (err) {
     return res
       .status(err.statusCode || 400)
@@ -133,4 +173,55 @@ export const rejectHotel = async (req, res) => {
       .json(errorResponse(err.message, err.statusCode || 400));
   }
 };
-// ⬆⬆ hotel/controller.js ADMIN 컨트롤러 교체 끝 ⬆⬆
+
+// GET /api/hotel/admin/:hotelId
+export const getHotelById = async (req, res) => {
+  try {
+    const { hotelId } = req.params;
+    const hotel = await hotelService.getHotelById(hotelId);
+
+    return res
+      .status(200)
+      .json(successResponse(hotel, "HOTEL_FOUND", 200));
+  } catch (err) {
+    return res
+      .status(err.statusCode || 400)
+      .json(errorResponse(err.message, err.statusCode || 400));
+  }
+};
+
+// POST /api/hotel/:id/images
+export const uploadHotelImages = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const hotel = await Hotel.findById(id);
+    if (!hotel) {
+      return res.status(404).json(errorResponse("HOTEL_NOT_FOUND", 404));
+    }
+
+    // owner는 본인 호텔만 업로드 가능 (admin은 전체 가능)
+    if (
+      req.user?.role !== "admin" &&
+      hotel.owner &&
+      hotel.owner.toString() !== (req.user.id || req.user._id)?.toString()
+    ) {
+      return res.status(403).json(errorResponse("NO_PERMISSION", 403));
+    }
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json(errorResponse("NO_IMAGES_UPLOADED", 400));
+    }
+
+    const imageUrls = req.files.map((file) => file.location);
+    hotel.images = [...(hotel.images || []), ...imageUrls];
+    await hotel.save();
+
+    return res
+      .status(200)
+      .json(successResponse(hotel, "HOTEL_IMAGE_UPLOADED", 200));
+  } catch (err) {
+    console.error(err);
+    return res.status(400).json(errorResponse(err.message, 400));
+  }
+};

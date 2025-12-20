@@ -101,6 +101,7 @@ const AdminHotelListPage = () => {
         <table>
           <thead>
             <tr>
+              <th>이미지</th>
               <th>호텔명</th>
               <th>도시</th>
               <th>주소</th>
@@ -108,19 +109,36 @@ const AdminHotelListPage = () => {
               <th>사업자번호</th>
               <th>상태</th>
               <th>등록일</th>
+              <th>평점</th>
+              <th>무료혜택</th>
+              <th>편의시설</th>
               <th>액션</th>
             </tr>
           </thead>
           <tbody>
             {hotels.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: "center", padding: "40px" }}>
+                <td colSpan="12" style={{ textAlign: "center", padding: "40px" }}>
                   호텔이 없습니다.
                 </td>
               </tr>
             ) : (
               hotels.map((hotel) => (
                 <tr key={hotel.id || hotel._id}>
+                  <td>
+                    {hotel.images && hotel.images.length > 0 ? (
+                      <img 
+                        src={hotel.images[0]} 
+                        alt={hotel.name}
+                        className="hotel-thumbnail"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="hotel-thumbnail-placeholder">이미지 없음</div>
+                    )}
+                  </td>
                   <td>{hotel.name}</td>
                   <td>{hotel.city}</td>
                   <td>{hotel.address || "-"}</td>
@@ -130,6 +148,19 @@ const AdminHotelListPage = () => {
                     <StatusBadge status={hotel.status} />
                   </td>
                   <td>{new Date(hotel.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    {hotel.rating > 0 ? `${hotel.rating}점` : "-"}
+                  </td>
+                  <td>
+                    {hotel.freebies && hotel.freebies.length > 0 
+                      ? hotel.freebies.join(", ") 
+                      : "-"}
+                  </td>
+                  <td>
+                    {hotel.amenities && hotel.amenities.length > 0 
+                      ? hotel.amenities.join(", ") 
+                      : "-"}
+                  </td>
                   <td>
                     <div className="action-buttons">
                       {hotel.status === "pending" && (

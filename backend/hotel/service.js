@@ -14,10 +14,7 @@ export const getHotelsByOwner = async (ownerId, options = {}) => {
   const filter = { owner: ownerId };
 
   const [items, total] = await Promise.all([
-    Hotel.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit),
+    Hotel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
     Hotel.countDocuments(filter),
   ]);
 
@@ -33,8 +30,16 @@ export const getHotelsByOwner = async (ownerId, options = {}) => {
 };
 
 // 호텔 생성
-export const createHotel = async (ownerId, payload) => {
-  const { name, city, address } = payload;
+export const createHotel = async (ownerId, data) => {
+  const {
+    name,
+    city,
+    address,
+    images = [],
+    rating = 0,
+    freebies = [],
+    amenities = [],
+  } = data;
 
   if (!name || !city) {
     const err = new Error("HOTEL_REQUIRED_FIELDS");
@@ -43,11 +48,17 @@ export const createHotel = async (ownerId, payload) => {
   }
 
   const hotel = await Hotel.create({
-    owner: ownerId,
     name,
     city,
     address,
-    status: "pending", // 생성 시 기본은 pending
+    owner: ownerId,
+    images,
+    status: "pending",
+
+    // ✅ 추가 저장
+    rating,
+    freebies,
+    amenities,
   });
 
   return hotel;
@@ -73,6 +84,19 @@ export const updateHotel = async (ownerId, hotelId, payload) => {
   if (payload.city !== undefined) hotel.city = payload.city;
   if (payload.address !== undefined) hotel.address = payload.address;
 
+  // ✅ 추가 업데이트
+  if (payload.rating !== undefined) hotel.rating = payload.rating;
+  if (payload.freebies !== undefined) hotel.freebies = payload.freebies;
+  if (payload.amenities !== undefined) hotel.amenities = payload.amenities;
+
+  // 이미지 업데이트 (새 이미지가 있으면 기존 이미지에 추가)
+  if (payload.images !== undefined) {
+    if (Array.isArray(payload.images)) {
+      // 새로운 이미지만 전달된 경우 기존 이미지에 추가
+      hotel.images = [...(hotel.images || []), ...payload.images];
+    }
+  }
+
   const updated = await hotel.save();
   return updated;
 };
@@ -88,7 +112,7 @@ export const getAllHotels = async (options = {}) => {
   const skip = (page - 1) * limit;
 
   const filter = {};
-  
+
   // 상태 필터가 있으면 적용
   if (options.status && options.status !== "all") {
     filter.status = options.status;
@@ -170,4 +194,17 @@ export const rejectHotel = async (hotelId) => {
   hotel.status = "rejected";
   const updated = await hotel.save();
   return updated;
+};
+
+// 관리자: 호텔 단일 조회
+export const getHotelById = async (hotelId) => {
+  const hotel = await Hotel.findById(hotelId).populate("owner", "name email businessNumber");
+
+  if (!hotel) {
+    const err = new Error("HOTEL_NOT_FOUND");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  return hotel;
 };
