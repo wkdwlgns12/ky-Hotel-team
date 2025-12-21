@@ -11,9 +11,14 @@ export const roomApi = {
     return await axiosClient.post(`/room/owner/${hotelId}`, data);
   },
 
-  // 사업자: 객실 수정
+  // 사업자: 객실 수정 (PATCH)
   updateRoom: async (roomId, data) => {
     return await axiosClient.patch(`/room/owner/${roomId}`, data);
+  },
+
+  // 사업자: 객실 수정 (PUT - PATCH와 동일한 기능)
+  updateRoomPut: async (roomId, data) => {
+    return await axiosClient.put(`/room/owner/${roomId}`, data);
   },
 
   // 사업자: 객실 삭제

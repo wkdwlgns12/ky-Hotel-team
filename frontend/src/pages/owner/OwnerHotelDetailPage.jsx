@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import hotelApi from "../../api/hotelApi";
+import { adminHotelApi } from "../../api/adminHotelApi";
 import roomApi from "../../api/roomApi";
 import Loader from "../../components/common/Loader";
 import StatusBadge from "../../components/common/StatusBadge";
@@ -31,22 +31,19 @@ const OwnerHotelDetailPage = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const hotelsResponse = await hotelApi.getMyHotels();
-      const hotelData = hotelsResponse.data || hotelsResponse; // successResponse(data) 구조 대응
-      const foundHotel = hotelData.items?.find(
-        (h) => (h.id || h._id)?.toString() === hotelId
-      );
-      setHotel(foundHotel || null);
+      // admin API를 사용 (백엔드에서 owner도 접근 가능하도록 수정됨)
+      const hotelData = await adminHotelApi.getHotelById(hotelId);
+      setHotel(hotelData);
 
-      if (foundHotel) {
+      if (hotelData) {
         const roomsResponse = await roomApi.getRoomsByHotel(hotelId);
         const roomsData = roomsResponse.data || roomsResponse;
-        setRooms(roomsData || []);
+        setRooms(Array.isArray(roomsData) ? roomsData : []);
       } else {
         setRooms([]);
       }
     } catch (err) {
-      alert(err.response?.data?.message || "데이터를 불러오는데 실패했습니다.");
+      alert(err.response?.data?.message || err.message || "데이터를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }

@@ -70,7 +70,7 @@ router.get(
 router.get(
   "/admin/:hotelId",
   verifyToken,
-  requireRole("admin"),
+  requireRole("admin", "owner"),
   getHotelById
 );
 

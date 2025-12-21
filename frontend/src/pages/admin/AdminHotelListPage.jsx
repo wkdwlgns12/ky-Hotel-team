@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import hotelApi from "../../api/hotelApi";
 import Loader from "../../components/common/Loader";
 import Pagination from "../../components/common/Pagination";
@@ -6,6 +7,7 @@ import StatusBadge from "../../components/common/StatusBadge";
 import "./AdminHotelListPage.scss";
 
 const AdminHotelListPage = () => {
+  const navigate = useNavigate();
   const [hotels, setHotels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -163,6 +165,13 @@ const AdminHotelListPage = () => {
                   </td>
                   <td>
                     <div className="action-buttons">
+                      <button
+                        className="btn btn-info"
+                        onClick={() => navigate(`/admin/hotels/${hotel.id || hotel._id}`)}
+                        style={{ marginRight: "8px" }}
+                      >
+                        상세
+                      </button>
                       {hotel.status === "pending" && (
                         <>
                           <button

@@ -84,6 +84,7 @@
     .action-buttons {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
 
       .btn {
         padding: 6px 12px;
@@ -92,6 +93,15 @@
         cursor: pointer;
         font-size: 14px;
         transition: all 0.3s;
+
+        &.btn-info {
+          background: #17a2b8;
+          color: white;
+
+          &:hover {
+            background: #138496;
+          }
+        }
 
         &.btn-success {
           background: #28a745;

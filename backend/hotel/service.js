@@ -197,12 +197,19 @@ export const rejectHotel = async (hotelId) => {
 };
 
 // 관리자: 호텔 단일 조회
-export const getHotelById = async (hotelId) => {
+export const getHotelById = async (hotelId, ownerId = null) => {
   const hotel = await Hotel.findById(hotelId).populate("owner", "name email businessNumber");
 
   if (!hotel) {
     const err = new Error("HOTEL_NOT_FOUND");
     err.statusCode = 404;
+    throw err;
+  }
+
+  // owner인 경우 본인 호텔만 조회 가능
+  if (ownerId && hotel.owner && hotel.owner._id.toString() !== ownerId.toString() && hotel.owner.toString() !== ownerId.toString()) {
+    const err = new Error("NO_PERMISSION");
+    err.statusCode = 403;
     throw err;
   }
 

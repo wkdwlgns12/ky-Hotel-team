@@ -178,7 +178,11 @@ export const rejectHotel = async (req, res) => {
 export const getHotelById = async (req, res) => {
   try {
     const { hotelId } = req.params;
-    const hotel = await hotelService.getHotelById(hotelId);
+    const userId = req.user.id || req.user._id;
+    const userRole = req.user.role;
+    
+    // owner인 경우 본인 호텔만 조회 가능
+    const hotel = await hotelService.getHotelById(hotelId, userRole === "owner" ? userId : null);
 
     return res
       .status(200)

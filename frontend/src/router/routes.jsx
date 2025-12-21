@@ -7,6 +7,8 @@ import OwnerRegisterPage from "../pages/auth/OwnerRegisterPage";
 import AdminLayout from "../components/layout/AdminLayout";
 import AdminDashboardPage from "../pages/admin/AdminDashboardPage";
 import AdminHotelListPage from "../pages/admin/AdminHotelListPage";
+import AdminHotelDetailPage from "../pages/admin/AdminHotelDetailPage";
+import AdminHotelEditPage from "../pages/admin/AdminHotelEditPage";
 import AdminUserListPage from "../pages/admin/AdminUserListPage";
 import AdminReviewListPage from "../pages/admin/AdminReviewListPage";
 import AdminCouponListPage from "../pages/admin/AdminCouponListPage";
@@ -57,6 +59,14 @@ export const routes = [
       {
         path: "hotels",
         element: <AdminHotelListPage />,
+      },
+      {
+        path: "hotels/:hotelId",
+        element: <AdminHotelDetailPage />,
+      },
+      {
+        path: "hotels/:hotelId/edit",
+        element: <AdminHotelEditPage />,
       },
       {
         path: "users",
