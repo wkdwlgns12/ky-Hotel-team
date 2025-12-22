@@ -7,7 +7,7 @@ import Hotel from "../hotel/model.js";
 //
 
 // 특정 호텔의 객실 목록
-export const getRoomsByHotel = async (ownerId, hotelId) => {
+export const getRoomsByHotel = async (ownerId, hotelId, userRole = null) => {
   const hotel = await Hotel.findById(hotelId);
 
   if (!hotel) {
@@ -16,14 +16,17 @@ export const getRoomsByHotel = async (ownerId, hotelId) => {
     throw err;
   }
 
-  // owner 필드가 비어 있으면 현재 오너로 보정
-  if (!hotel.owner) {
-    hotel.owner = ownerId;
-    await hotel.save();
-  } else if (hotel.owner.toString() !== ownerId.toString()) {
-    const err = new Error("NO_PERMISSION");
-    err.statusCode = 403;
-    throw err;
+  // 관리자인 경우 권한 체크를 건너뜀
+  if (userRole !== "admin") {
+    // owner 필드가 비어 있으면 현재 오너로 보정
+    if (!hotel.owner) {
+      hotel.owner = ownerId;
+      await hotel.save();
+    } else if (hotel.owner.toString() !== ownerId.toString()) {
+      const err = new Error("NO_PERMISSION");
+      err.statusCode = 403;
+      throw err;
+    }
   }
 
   const rooms = await Room.find({ hotel: hotelId }).sort({ createdAt: -1 });
