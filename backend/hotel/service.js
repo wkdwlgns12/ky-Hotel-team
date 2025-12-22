@@ -176,8 +176,14 @@ export const approveHotel = async (hotelId) => {
     throw err;
   }
 
+  // rating이 0보다 작으면 0으로 설정 (평점 없음)
+  if (hotel.rating < 0) {
+    hotel.rating = 0;
+  }
+
   hotel.status = "approved";
-  const updated = await hotel.save();
+  // validateBeforeSave: false 옵션으로 validation 오류 방지
+  const updated = await hotel.save({ validateBeforeSave: true });
   return updated;
 };
 
@@ -191,8 +197,14 @@ export const rejectHotel = async (hotelId) => {
     throw err;
   }
 
+  // rating이 0보다 작으면 0으로 설정 (평점 없음)
+  if (hotel.rating < 0) {
+    hotel.rating = 0;
+  }
+
   hotel.status = "rejected";
-  const updated = await hotel.save();
+  // validateBeforeSave: true 옵션으로 validation 실행
+  const updated = await hotel.save({ validateBeforeSave: true });
   return updated;
 };
 
